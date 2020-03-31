@@ -34,6 +34,14 @@ void pre_auton(void) {
 void auton(void) { 
   preautoL=false;                         //reset pre auto latch
   G::MATCHTIMER=0;                        //reset Match timer
+  AutoRunning=1;
+  printscreen.resume();                  
+  rampcontroller.resume();
+  rampwheel.resume();
+  IntakeController.resume();
+  arm.suspend();
+  cubes.resume();
+
 //#include "autonincludes.h"                //include auto code
 //#include "RedBlue1.h"
 //#include "Blue1.h"  //8points working 11/16
@@ -42,7 +50,13 @@ void auton(void) {
 //#include "Blue4.h"  //12 points 37 seconds working 11/16
 //#include "Blue5.h"
 //#include "Red1.h"
-#include "Red2.h"
+//#include "Red2.h"
+//Move(60,72,1,brake,100000);
+//Move(80,20.01,1,coast,5000);
+
+#include "Blue6.h" //Working 11 points 11/30/19
+
+
 }
 
 //////////////////////
@@ -51,6 +65,13 @@ void auton(void) {
 void usercontrol(void) { 
   preautoL=false;                         //reset pre auto latch
   MATCHTIMER=0;                           //reset timer
+    printscreen.resume();                  
+  rampcontroller.resume();
+  rampwheel.resume();
+  IntakeController.resume();
+  arm.resume();
+  cubes.suspend();
+       
 //#include "usercontrol.h"
 #include "ArcadeControl.h"
 } 
@@ -70,10 +91,8 @@ int main()
   AutoRunning = 0;                        //auto latch off
 
   ArmL.resetRotation();
-  ArmR.resetRotation();                   //Reset arm rotations
-  wait(500);                             //wait (X) ms
-  Gyro.startCalibration();                //start Gyro Calibration
-  wait(2000);                             //wait (X) ms
+  ArmR.resetRotation();
+                     //wait (X) ms
 	pre_auton();                            //Run the pre-autonomous function. 
 	//Set up callbacks for autonomous and driver control periods.
 	Competition.autonomous(auton);

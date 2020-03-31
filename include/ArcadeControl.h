@@ -140,7 +140,7 @@ else {DontDropStack=off;DontLiftStack=off;}
   else{ContinueStack=off;}
 
 if (bLeft){task cubeload (CubeLoad);}
-  if (bDown){cubeload.suspend();}
+else if (bDown){cubeload.suspend();}
 if (bRight)
 {task autostack (AutoStack);}
 
