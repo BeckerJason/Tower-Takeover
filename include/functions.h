@@ -344,6 +344,57 @@ int timeout) {
 
 	StopDrive(brake);
 }
+///////////////////////////////////////////////////////////////////////////
+int moveg(float speed, float dist, bool rampspeed, double gyroheading, int functiontimer)///Setting gyroheading to 10000 keeps robot in direction its facing 
+{
+	dist=dist*.95;
+	float dir;
+	if (dist < 0) {
+		dir = -1;
+		} else {
+		dir = 1;
+	}
+	float Tdir = dir;
+	LM.resetRotation();
+	RM.resetRotation();
+	wait(20);
+	T3 = 0;
+	double counter = 100;
+	if (rampspeed) {
+		counter = 50;
+	}
+
+  double TGyro=0;
+  if(gyroheading==10000){TGyro=GlobalGyro;}
+  else {TGyro=gyroheading;}
+	while (fabs(enc(LM)) < fabs((dist * 360.0 / (4.0 * 3.14159))) && T3 < functiontimer&&!bLeft&&!bDown) {
+  
+		float Roffset = 1.0;
+		if (GlobalGyro>TGyro+5) {
+			Roffset = 1-dir*0.1;
+			}
+       else if (GlobalGyro<TGyro-5) {
+			Roffset = 1+dir*0.1;
+			}
+       else {
+		}
+		if (counter < 100) {
+			dir = Tdir * counter * 0.01;
+			counter += .75;
+			} else {
+			dir = Tdir;
+		}
+		run(RM, speed * Roffset * dir);
+		run(LM, speed * dir);
+		run(RF, speed * Roffset * dir);
+		run(LF, speed * dir);
+		run(RB, speed * Roffset * dir);
+		run(LB, speed * dir);
+		wait(12);
+	}
+	return 1;
+
+}
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -829,7 +880,7 @@ void ArcTurn(float degree, float radius, char FBD, char LRD) //fbd fwd bkwd  lrd
 	if(LR>0){Larcdist=degree*(radius+7.5); Rarcdist=degree*(radius-7.5); /*Lmult=(radius+7.5); Rmult=(radius-7.5);*/ }///DEtermine if left side or right side is travelling shorter or longer dist
 	else {Larcdist=degree*(radius-7.5); Rarcdist=degree*(radius+7.5);/*Lmult=(radius-7.5); Rmult=(radius+7.5);*/}
 	Larcdist= (Larcdist*360)/(4.1*M_PI);///Change 261 (IME Turbo) for 360 for external Motor controllers
-	Rarcdist= (Rarcdist*360)/(4.1*M_PI);///Change 261 (IME Turbo) for 360 for external Motor controllers
+	Rarcdist= (Rarcdist*360)/(4.1*M_PI);///Change 261 (IME Turbo) for 360 for external Motor controllers /////(degree*(radius+7.5)*360)/(4.1*M_PI)
 	//Lmult=(Larcdist/Rarcdist); Rmult=(Rarcdist/Larcdist);
 	//if (Lmult>1){Lmult=Lmult/3; Rmult=Rmult*3;}
 	//  else{Lmult=Lmult*3; Rmult=Rmult/3;}
@@ -870,3 +921,42 @@ else if(abs(enc(RM))>Rarcdist){dirR*=-1.0;}
 	}
 	StopDrive(brake);
 }
+
+void ArcTurnG(float degree, float radius, char FBD, char LRD) //fbd fwd bkwd  lrd left right
+{
+  T3=0;
+	LM.resetRotation();
+  RM.resetRotation();
+  GlobalGyroT=0;
+	//90 degrees
+  double BaseSpeed=15;
+	float speedL, speedR,dirL,dirR;
+	float Larcdist, Rarcdist,LR,dir,Loffset, Roffset, Rmult, Lmult; //LeftRight, Forward Backward
+	if (FBD=='F'||FBD=='f'){dir=1.0;}					////FORWARD 1
+	else{dir=-1.0;}
+  while(fabs(GlobalGyroT)<degree*10)
+  { Roffset=Loffset=1;
+    if (LRD=='L' ||LRD=='l')
+    {LR=1.0;
+      if (GlobalGyroT/10<2*fabs(enc(RM))/(radius+6))  //360.0 / (4.0 * 3.14159
+      {Roffset=dir*1+dir*1;    }
+      else if (GlobalGyroT/10>2*fabs(enc(RM))/(radius+6))
+      {Roffset=dir*1-dir*1;    }   
+    }   			////LEFT -1
+    else
+    {
+      LR=-1.0;
+     if (-GlobalGyroT/10<2*fabs(enc(LM))/(radius+6))  //360.0 / (4.0 * 3.14159
+      {Loffset=dir*1+dir*1;    }
+      else if (-dir*GlobalGyroT/10>2*fabs(enc(LM))/(radius+6))
+      {Loffset=dir*1-dir*1;    }   
+    }//
+    leftDrive(BaseSpeed*dir*Loffset);
+    rightDrive(BaseSpeed*dir*Roffset);
+    wait(10);
+  }
+  StopDrive(brake);
+
+  //T(degree)
+}
+

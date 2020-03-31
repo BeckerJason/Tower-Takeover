@@ -17,7 +17,7 @@
 /*----------------------------------------------------------------------------*/
 
 #ifndef DEBUG  
-//#define DEBUG
+#define DEBUG
 #endif
 #include "defines.h"            //variable and function initialization and definitions
 vex::competition Competition;   //tell robot to use competition file format
@@ -33,7 +33,9 @@ void pre_auton(void) {
 // cubeload.suspend();
 //   stack.suspend();
 ramp=bwrd;                              //ramp direction starts as 'backward', the next step of enable will cause ramp to move forward
-  
+#ifdef DEBUG
+Color=Red;
+#endif  
   RampR.resetRotation();
   RampL.resetRotation();                  //Reset ramp rotations
   ArmL.resetRotation();
@@ -55,7 +57,12 @@ void auton(void) {
 //Color=Red;
 //#include "RedBlue1.h"   //12 points copied from Blue5
 //#include "RedBlue2.h"   // 12 points 42 seconds working 12/9/19
-#include "RedBlue3.h"   //
+MoveG(20,-12,1,0,brake,3000);
+ArcTurnG(90,20,'b','r');
+ArcTurnG(90,20,'b','l');
+
+
+//#include "RedBlue3.h"   //
 //#include "Blue1.h"  //8points working 11/16
 //#include "Blue2.h"    //9 points working, dropping 1 cube 11/16
 //#include "Blue3.h"  //12 points 44 seconds working 11/16

@@ -164,6 +164,9 @@ vex::motor RampR = vex::motor(vex::PORT19,vex::gearSetting::ratio36_1,false);//r
 #define tower 500 //arm encoder count to reach tower
 #define Move(w,x,y,brake,z) move(w,x,y,z);\
                             StopDrive(brake)
+#define MoveG(w,x,y,k,brake,z) moveg(w,x,y,k,z);\ 
+                            StopDrive(brake)                            
+
 #endif
 
 
