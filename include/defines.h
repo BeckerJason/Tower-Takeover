@@ -62,6 +62,7 @@ class VisionObject {
 bool rampprev = false;
 bool intakeprev = false;
 bool clampprev = false;
+bool manualprev=false;
 static float TurnDiff = 0, THeight = 0, TWidth = 0, TurnDir = 1, TXDist = 200, GlobalCubeOffset = 150,TYDist=0;
 static int AutoRunning = 0;
 static int MoveReturn=0;
@@ -93,8 +94,8 @@ vex::digital_out Piston=vex::digital_out(Brain.ThreeWirePort.A);
 vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.A);
 vex::limit CubeSense = vex::limit(Brain.ThreeWirePort.F);
 vex::limit CubeSense2 = vex::limit(Brain.ThreeWirePort.C);
-vex::motor RampWheelR = vex::motor(vex::PORT6,vex::gearSetting::ratio18_1,false);//right Ramp wheel motor
-vex::motor RampWheelL = vex::motor(vex::PORT17,vex::gearSetting::ratio18_1,true);//left Ramp wheel motor
+vex::motor RampWheelR = vex::motor(vex::PORT6,vex::gearSetting::ratio36_1,false);//right Ramp wheel motor
+vex::motor RampWheelL = vex::motor(vex::PORT17,vex::gearSetting::ratio36_1,true);//left Ramp wheel motor
 vex::motor LF = vex::motor(vex::PORT18,vex::gearSetting::ratio18_1,false);//front left drivetrain motor
 vex::motor LM = vex::motor(vex::PORT19,vex::gearSetting::ratio18_1,false);//middle left drivetrain motor
 vex::motor LB = vex::motor(vex::PORT20,vex::gearSetting::ratio18_1,false);//back left drivetrain motor
@@ -180,6 +181,12 @@ int CubeLoad();
 //void SetDriveTorque(double);
 void Colors(ToggleMode,ToggleMode,ToggleMode);
 
+
+
+#endif 
+
+#ifndef TASKS
+#define TASKS
 	vex::task printscreen (PrintScreen); 
 	//vex::task fifth (TurnToCube); 
 	vex::task timer2 (TIMER2);
@@ -192,6 +199,5 @@ void Colors(ToggleMode,ToggleMode,ToggleMode);
   vex::task cubes (TurnToCube);
   vex::task rampwheel (RampWheels);
   vex::task cubeload (CubeLoad);
-  
-
-#endif 
+  vex::task stack;
+#endif

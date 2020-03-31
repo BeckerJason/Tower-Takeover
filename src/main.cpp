@@ -44,18 +44,45 @@ void auton(void) {
 
 //#include "autonincludes.h"                //include auto code
 //#include "RedBlue1.h"
-//#include "Blue1.h"  //8points working 11/16
-//#include "Blue2.h"    //9 points working, dropping 1 cube 11/16
-//#include "Blue3.h"  //12 points 44 seconds working 11/16
-//#include "Blue4.h"  //12 points 37 seconds working 11/16
+//#include "Blue1.h"  
+//#include "Blue2.h"    
+//#include "Blue3.h"  
+//#include "Blue4.h"  
 //#include "Blue5.h"
 //#include "Red1.h"
 //#include "Red2.h"
 //Move(60,72,1,brake,100000);
 //Move(80,20.01,1,coast,5000);
 
-#include "Blue6.h" //Working 11 points 11/30/19
-
+//#include "Blue6.h" //Working 11 points 11/30/19
+intake=off;
+DontLiftStack=on;
+ rampwheel.suspend();
+RampWheelL.resetRotation();
+ RampWheelR.resetRotation();
+//rightDrive(-10);
+//leftDrive(-10);
+     ArmL.setVelocity(100,vex::velocityUnits::pct);
+     ArmR.setVelocity(100,vex::velocityUnits::pct);
+     arm.suspend();
+     ArmR.startRotateTo(300,rotationUnits::deg);
+     ArmL.rotateTo(300,rotationUnits::deg);
+     ManualSpeed=-100;
+     intake=manual;
+     ArmR.startRotateTo(600,rotationUnits::deg);
+     ArmL.rotateTo(600,rotationUnits::deg);
+     intake=on;
+     RampWheelL.setVelocity(60,vex::velocityUnits::pct);
+     RampWheelR.setVelocity(60,vex::velocityUnits::pct);
+     RampWheelR.startRotateTo(-150,rotationUnits::deg);
+     RampWheelL.startRotateTo(-150,rotationUnits::deg);
+     //ArmL.setVelocity(50,vex::velocityUnits::pct);
+     //ArmR.setVelocity(50,vex::velocityUnits::pct);
+     ArmR.startRotateTo(0,rotationUnits::deg);
+     ArmL.rotateTo(0,rotationUnits::deg);
+     arm.suspend();
+     StopArm(hold);
+intake=on;
 
 }
 
@@ -97,7 +124,7 @@ int main()
 	//Set up callbacks for autonomous and driver control periods.
 	Competition.autonomous(auton);
 	Competition.drivercontrol(usercontrol);
-  vex::task rampcontroller (RampControl);      //start ramp control task
+  //vex::task rampcontroller (RampControl);      //start ramp control task
 	//Prevent main from exiting with an infinite loop.                        
 	while (1) {
 		wait(100);//Sleep the task for a short amount of time to prevent wasted resources.

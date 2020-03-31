@@ -5,51 +5,56 @@ using namespace G;
 
 Color=Blue;
 AutoRunning=1;
+
 intake=off;
 DontLiftStack=on;
  rampwheel.suspend();
 RampWheelL.resetRotation();
  RampWheelR.resetRotation();
-
+rightDrive(-10);
+leftDrive(-10);
      ArmL.setVelocity(100,vex::velocityUnits::pct);
      ArmR.setVelocity(100,vex::velocityUnits::pct);
+     arm.suspend();
      ArmR.startRotateTo(600,rotationUnits::deg);
      ArmL.rotateTo(600,rotationUnits::deg);
-    RampWheelL.setVelocity(60,vex::velocityUnits::pct);
+     RampWheelL.setVelocity(60,vex::velocityUnits::pct);
      RampWheelR.setVelocity(60,vex::velocityUnits::pct);
-     RampWheelR.startRotateTo(-300,rotationUnits::deg);
-     RampWheelL.startRotateTo(-300,rotationUnits::deg);
+     RampWheelR.startRotateTo(-150,rotationUnits::deg);
+     RampWheelL.startRotateTo(-150,rotationUnits::deg);
      ArmL.setVelocity(50,vex::velocityUnits::pct);
      ArmR.setVelocity(50,vex::velocityUnits::pct);
      ArmR.startRotateTo(0,rotationUnits::deg);
      ArmL.rotateTo(0,rotationUnits::deg);
+     arm.suspend();
+     StopArm(hold);
 intake=on;
 DontLiftStack=on;
-
+wait(250);
 Move(65,10.3555,1,coast,2000);
 rampwheel.resume();
 rightDrive(60);
 leftDrive(60);
 intake=off;
-Move(55,31.4311,0,brake,3000);
+Move(55,33,0,brake,3000);//31.4311
 wait(500);
 DontLiftStack=off;intake=on;
-Move(60,-14.025,1,brake,5000);
+Move(60,-15.525,1,brake,5000);//-14.025
 wait(100);
-T(-60*Color,40,5000);
+T(-60*Color,20,5000);
 wait(100);
 Move(60,10,1,brake,5000);
 DontLiftStack=on;
 wait(100);
 //Turn(60,20,5000);
-T(0*Color,40,3000);
+T(0*Color,20,3000);
 wait(100);
-GTrack=on;
-PTrack=on;
-OTrack=on;
-CubeTrack=on;
-while(CubeTrack==on){wait(10);}
-Move(60,12,1,brake,5000);
+// GTrack=on;
+// PTrack=off;
+// OTrack=off;
+// CubeTrack=on;
+// while(CubeTrack==on){wait(10);}
+Move(60,13,1,brake,5000);
 // for(int i=0;i<2;i++)
 // {
 // Colors(on,on,on);
@@ -118,49 +123,53 @@ T(80*Color,30,3000);
 wait(100);
 Move(60,-14,1,brake,3000);
 T(180*Color,30,5000);
-GTrack=on;
-PTrack=off;
-OTrack=off;
-CubeTrack=on;
-while(CubeTrack==on){wait(100);}
+// GTrack=on;
+// PTrack=off;
+// OTrack=off;
+// CubeTrack=on;
+// while(CubeTrack==on){wait(100);}
+wait(100);
 Move(40,12,1,brake,8000);
 wait(100);
-T(135*Color,30,5000);
+T(130*Color,30,5000);//135
 wait(100);
-Move(60,12,1,brake,8000);
-wait(100);
-Turn(-35*Color,30,5000);
-GTrack=off;
-PTrack=on;
-OTrack=off;
-//CubeTrack=on;
-while(CubeTrack==on){wait(100);}
-wait(100);
-Move(50,15,1,brake,8000);
-CubeTrack=on;
-while(CubeTrack==on){wait(100);}
-wait(100);
-Move(30,9.5,1,brake,8000);
-Move(60, -2,1,brake,3000);
+Move(60,12.25,1,brake,8000);
+wait(100); 
+Turn(-10*Color,30,5000);//-35
+// GTrack=off;
+// PTrack=on;
+// OTrack=off;
+// CubeTrack=on;
+// while(CubeTrack==on){wait(100);}
+// wait(100);
+Move(50,17,1,brake,8000);
+// CubeTrack=on;
+// while(CubeTrack==on){wait(100);}
+// wait(100);
+Move(30,10,1,brake,8000);
+wait(200);
+Move(60, -3,1,brake,3000);
 wait(100);
 Turn(-45*Color,30,5000);
 wait(100);
-Move(60,-11,1,brake,8000);
+Move(60,-7,1,brake,8000);
 wait(100);
-Turn(45*Color,30,5000);
-GTrack=on;
-PTrack=off;
-OTrack=off;
-CubeTrack=on;
-while(CubeTrack==on){wait(100);}
-Move(30, 14.5,1,brake,3000);
+Turn(50*Color,30,5000);
+// GTrack=on;
+// PTrack=off;
+// OTrack=off;
+// CubeTrack=on;
+// while(CubeTrack==on){wait(100);}
 wait(100);
-Move(60, -20,1,brake,3000);
+Move(30, 15,1,brake,3000);
 wait(100);
-T(0*Color,30,5000);
-T(-95*Color,30,5000);
+Move(60, -22,1,brake,3000);
 wait(100);
-Move(30, 26,1,brake,3000);
+//T(0*Color,30,5000);
+//T(-88*Color,30,5000);//-92
+Turn(-175,30,5000);
+wait(100);
+Move(25, 23,1,brake,3000);
 AutoStack();
 
 /*Move(60,-4.1575,1,brake,5000);
