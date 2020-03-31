@@ -35,27 +35,32 @@ while (1) {
   } else if (AutoRunning == 0) {
     StopDrive(brake);
   } else {
-  }
+  } 
 //ARM
-  if (AutoRunning == 0 && (abs(ch2) > 5))//Chain bar arm control
+  if (bR1==1&&enc(ArmL)<500)//Chain bar arm control
     {
-      run(ArmL, ch2/5);
-      run(ArmR, ch2/5);
+      run(ArmL, 70);
+      run(ArmR, 70);
       //ArmL.resetRotation();
+    }
+    else if (bR2==1&&enc(ArmL)>0)
+    {
+      run(ArmL, -70);
+      run(ArmR, -70);
     }
   else
     {
         
-      if(abs(enc(ArmL)) <10)
+      /*if(abs(enc(ArmL)) <10)
       {
         run(ArmL, 0);
         run(ArmR, 0);
-      }
+      }                                   
       else
-      {
+      {*/
         BRAKE(ArmL, hold);
         BRAKE(ArmR, hold);
-      }
+      //}
     }
 /*//CASCADE LIFT
 if ((bR1 || bR2) == 1)
@@ -75,13 +80,13 @@ else
     G::rampprev=bA ;
     if (bX==1){RunRamp=off;}
 
-  if(RampLimit.pressing()==0||RunRamp==on){}
-  else if (bY==1){run(RampWheelL,-100);run(RampWheelR,-100);}
+  if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){}
+  else if (bY==1&&bL1==0){run(RampWheelL,-100);run(RampWheelR,-100);}
   else if ( (CubeSense.value(percentUnits::pct)<68 || CubeSense2.value(percentUnits::pct)<68) &&  bL1==0){run(RampWheelL,100);run(RampWheelR,100);}
   else {BRAKE(RampWheelL,hold);BRAKE(RampWheelR,hold);}
   
- if(RampLimit.pressing()==0||RunRamp==on){} 
-  else if (intake == off) {if (bB && !G::intakeprev) intake = on;run(RightRoller, 80); run(LeftRoller, 80);} 
+ if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){} 
+  else if (intake == off) {if (bB && !G::intakeprev) intake = on;run(RightRoller, 100); run(LeftRoller, 100);} 
   else if (intake == on) { 
 
     if ( bB && !G::intakeprev) intake = off;run(RightRoller, 0); run(LeftRoller, 0);}

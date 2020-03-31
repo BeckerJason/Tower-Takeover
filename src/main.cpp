@@ -6,11 +6,21 @@
 /*    Description:  V5 project                                                */
 /*                                                                             */
 /*----------------------------------------------------------------------------*/
+/*                                                                             */
+/*   ALL FUNCTION PROTOTYPES PLACED IN DEFINES.H                               */
+/*   ALL GLOBAL VARIABLES PLACED IN NAMESPACE 'G' IN DEFINES.H                 */
+/*   ALL FUNCTIONS IN FUNCTIONS.H                                              */
+/*                                                                             */
+/*                                                                             */
+/*                                                                             */
+/*                                                                             */
+/*----------------------------------------------------------------------------*/
 
-//red 2 blue 3
 #include "defines.h"
 vex::competition Competition;  
 #include "functions.h" 
+using namespace vex;
+using namespace G;
 
 //
 void pre_auton(void) {
@@ -22,29 +32,33 @@ void pre_auton(void) {
 void auton(void) { 
   preautoL=false;
   G::MATCHTIMER=0;
-  vex::task starttimer (ENDAUTOTIMER);
-  vex::task rampcontroller (RampControl);
+  task starttimer (ENDAUTOTIMER);
+  task rampcontroller (RampControl);
+  task controllerprint (PrintController);
 #include "autonincludes.h"
 }
 
 
 void usercontrol(void) {
   preautoL=false;
-G::MATCHTIMER=0; 
-vex::task starttimer (ENDAUTOTIMER);
-vex::task rampcontroller (RampControl);
- #include "usercontrol.h"
+  MATCHTIMER=0; 
+  task starttimer (ENDAUTOTIMER);
+  task rampcontroller (RampControl);
+  task controllerprint (PrintController);
+  #include "usercontrol.h"
 } 
 
-int main() {
-
-AutoRunning = 0;
-RightRoller.resetRotation();
-LeftRoller.resetRotation();
-ArmL.resetRotation();
-   wait(1000);
-   Gyro.startCalibration();
-   wait(3000);
+int main() 
+{
+  ramp=fwrd;
+  AutoRunning = 0;
+  RampR.resetRotation();
+  RampL.resetRotation();//Reset ramp rotations
+  ArmL.resetRotation();
+  ArmR.resetRotation();//Reset arm rotations
+  wait(1000);
+  Gyro.startCalibration();
+  wait(3000);
 	//Run the pre-autonomous function. 
 	pre_auton();
 
@@ -58,5 +72,3 @@ ArmL.resetRotation();
 	}
   return 0;
 }
-
-

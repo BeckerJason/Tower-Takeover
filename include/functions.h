@@ -1,4 +1,3 @@
-#include "C:/Program Files (x86)/VEX Robotics/VEXcode/sdk/vexv5/include/vex_units.h"
 #include "defines.h"
 using namespace G;
 using namespace std;
@@ -23,13 +22,13 @@ int GyroTrack() {
   }
   return 0;
 }
-void run(vex::motor motorname, double speed) {
+/*void run(vex::motor motorname, double speed) {
   if (speed != 0) {
     motorname.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
   } else {
     motorname.stop(vex::brakeType::brake);
   }
-}
+}*/
 void runRPM(vex::motor motorname, double speed) {
   if (speed != 0) {
     motorname.spin(vex::directionType::fwd, speed, vex::velocityUnits::rpm);
@@ -62,9 +61,9 @@ void AutoStack()
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-float enc(vex::motor motorname) {
+/*float enc(vex::motor motorname) {
   return motorname.rotation(vex::rotationUnits::deg);
-}
+}*/
 int PrintScreen() {
   while (1) {
     Brain.Screen.clearScreen(vex::color::black);
@@ -75,11 +74,25 @@ int PrintScreen() {
                          Vision.objects[FinalObject].centerY);
     Brain.Screen.printAt(340, 140, "MT %d ", MATCHTIMER);
     Brain.Screen.printAt(340, 160, "Ramp %d ", ramp);
-    Brain.Screen.printAt(340, 180, "RunRamp %d ", RunRamp);
+    Brain.Screen.printAt(340, 180, "RampEnc %f ", enc(RampR));
     Brain.Screen.printAt(340, 200, "cube %d ", CubeSense.value(percentUnits::pct));
     Brain.Screen.printAt(340, 220, "cube %d ", CubeSense2.value(percentUnits::pct));
     wait(75);
   }
+  return 0;
+}
+int PrintController()
+{
+  while(1)
+  {
+  Controller.Screen.clearScreen();
+  Controller.Screen.setCursor(1,1);
+  Controller.Screen.print(RampL.velocity(percentUnits::pct) /*enc(RampR)*/);
+   Controller.Screen.setCursor(2,1);
+   Controller.Screen.print(RunRamp) /*enc(RampR)*/;
+  wait(100);
+  }
+
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -96,12 +109,14 @@ int TIMER2() {
 ////////////////////////////////////////////////////////////////////////////
 void rightDrive(int power) {
   run(RF, power);
+  run(RM, power);
   run(RB, power);
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 void leftDrive(int power) {
   run(LF, power);
+  run(LM, power);
   run(LB, power);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -305,54 +320,59 @@ int Move(float speed, float dist, bool rampspeed, vex::brakeType X) {
 
 void SwapColor() {}
 
-int RampControl()
+int RampControl() //Function to be run as a task. this controls the ramp
 {RunRamp=off;
   int oldval=ramp;
+  RampL.setMaxTorque(100, percentUnits::pct);
+  RampR.setMaxTorque(100, percentUnits::pct);
+  RampR.resetRotation();
+  RampL.resetRotation();
+
   while(1)
   {
-    if (bA==1)
-    {
+      
+      
+      while(RunRamp==0){wait(10);}
+      //Ramp -1 = up
       run(RightRoller,0);
       run(LeftRoller,0);
-              if (ramp==1)
-        {
-      //LeftRoller.startRotateFor(-fmod(enc(LeftRoller),465),rotationUnits::deg);
-      //RightRoller.startRotateFor(-fmod(enc(RightRoller),465),rotationUnits::deg);
-        //wait(200);
-        }
-      
-    while((RampLimit.pressing()==1||RampLimitBottom.pressing()==1)&&bX==0)
-    {
-      run(RampL,20*ramp);run(RampR,20*ramp); 
-       wait(10);
-      }
-      if(bL1==0)
+      //if (enc(RampR)>0 /*RampLimitBottom.pressing()==1*/){RampR.resetRotation();}
+      if (ramp==-1)//ramp up limit  //RAMP UP
       {
-      if(RampLimit.pressing()==1){
-      run(RampWheelL,100);
-      run(RampWheelR,100);}
-      else{
-        RampWheelL.setVelocity(25, velocityUnits::rpm);
-      RampWheelR.setVelocity(25, velocityUnits::rpm);
-           RampWheelL.startRotateFor(directionType::fwd, -175, rotationUnits::deg);
-     RampWheelR.startRotateFor(directionType::fwd, -175, rotationUnits::deg); 
+        if (bL1==0)
+        {
+          RampWheelL.setVelocity(25, velocityUnits::rpm);
+          RampWheelR.setVelocity(25, velocityUnits::rpm);
+          RampWheelL.startRotateFor(directionType::fwd, -175, rotationUnits::deg);
+          RampWheelR.startRotateFor(directionType::fwd, -175, rotationUnits::deg); 
+        }
+        double spd=0;
+        while(enc(RampR)>-600&&bX==0&&ramp==-1) //MOVE UP
+        {
+          spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+65;
+          run(RampR,-spd);
+          run(RampL,-spd);
+          wait(10);
+        }
+        if (ramp==-1){RunRamp=off;}
+
+        run(RampR,0);
+        run(RampL,0); 
+      }
+      else 
+      {
+        while(enc(RampR)<-50&&bX==0&&ramp==1)
+        {
+          run(RampR,40);
+          run(RampL,40);
+          wait(10);
+        }
+        if (ramp==1){RunRamp=off;}
+        run(RampR,0);
+        run(RampL,0);
       }
 
-      }
-      else {run(RampWheelL,0);run(RampWheelR,0);}
-      
-      double val=10;
-    while(bX==0&&RampLimit.pressing()==0&&RampLimitBottom.pressing()==0)
-    {
-      run(RampL,val*ramp);run(RampR,val*ramp);
-     if (val<30){val++;}
-     wait(200);
-     }
-    run(RampL,0);run(RampR,0);
-    while(bA==1){wait(10);}
-    RunRamp=off;
-    }      
-    wait(10);
+      run(RampL,0);run(RampR,0);
   }
   return 0;
 }
