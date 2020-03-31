@@ -7,7 +7,3 @@ preautoL=false;
   #include "AllianceSelect.h"
   #endif 
 
-	vex::task fourth (PrintScreen); 
-	//vex::task fifth (TurnToCube); 
-	vex::task mid2 (TIMER2);
-	vex::task okay (GyroTrack);

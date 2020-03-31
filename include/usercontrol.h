@@ -14,6 +14,8 @@ using namespace vex;
             wait(10);
 }  */
 #endif 
+DontDropStack=off;
+DontLiftStack=off;
 AutoRunning = 0;
 // SnapToCube = off;
 GlobalCubeOffset = 160;
@@ -21,6 +23,14 @@ MATCHTIMER = 0;
 OTrack=on;
 GTrack=off;
 PTrack=on;
+  /*if (!bLeft)
+  {
+  RampR.startRotateTo(-140,rotationUnits::deg);
+  RampL.rotateTo(-140,rotationUnits::deg);
+  RampR.resetRotation();
+  RampL.resetRotation();  
+  }*/
+  
 while (1) 
 {
   if (bUp==1)
@@ -28,77 +38,45 @@ while (1)
   else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10)) {
       CubeTrack=off;
       ToCube=off;
-      run(LF, (ch3 + ch1/2)); //(Axis3+Axis4)/2
-      run(LM, (ch3 + ch1/2));
-      run(LB, (ch3 + ch1/2)); //(Axis3+Axis4)/2
-      run(RF, (ch3 - ch1/2)); //(Axis3-Axis4)/2
-      run(RM, (ch3 - ch1/2));
-      run(RB, (ch3 - ch1/2)); //(Axis3-Axis4)/2
+      run(LF, (ch3 + ch1/3)); //(Axis3+Axis4)/2
+      run(LM, (ch3 + ch1/3));
+      run(LB, (ch3 + ch1/3)); //(Axis3+Axis4)/2
+      run(RF, (ch3 - ch1/3)); //(Axis3-Axis4)/2
+      run(RM, (ch3 - ch1/3));
+      run(RB, (ch3 - ch1/3)); //(Axis3-Axis4)/2
   }
    else if (AutoRunning == 0&&CubeTrack==off&&ToCube==off) {
     StopDrive(brake);
   } else {
   } 
 //ARM
-  if (bR1==1&&enc(ArmL)<500)//Chain bar arm control
-    {
-      run(ArmL, 70);
-      run(ArmR, 70);
-      //ArmL.resetRotation();
-    }
-    else if (bR2==1&&enc(ArmL)>0)
-    {
-      run(ArmL, -70);
-      run(ArmR, -70);
-    }
-  else
-    {
-        
-      /*if(abs(enc(ArmL)) <10)
-      {
-        run(ArmL, 0);
-        run(ArmR, 0);
-      }                                   
-      else
-      {*/
-        BRAKE(ArmL, hold);
-        BRAKE(ArmR, hold);
-      //}
-    }
-/*//CASCADE LIFT
-if ((bR1 || bR2) == 1)
-{
-  CascadeControl();
-}
-else
-{
-  StopLift(brake);
-}*/
-
-
-
-
-
-
+  
   if (ramp == fwrd) {if (bA && !G::rampprev) {ramp = bwrd;RunRamp=on;}} 
   else if (ramp == bwrd) {if ( bA && !G::rampprev) {ramp = fwrd;RunRamp=on;}}
     G::rampprev=bA ;
     if (bX==1){RunRamp=off;}
 
-  if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){}
-  else if (bY==1&&bL1==0){run(RampWheelL,-100);run(RampWheelR,-100);}
-  else if ( (CubeSense.value(percentUnits::pct)<70 || CubeSense2.value(percentUnits::pct)<70) &&  bL1==0){run(RampWheelL,100);run(RampWheelR,100);}
-  else {BRAKE(RampWheelL,hold);BRAKE(RampWheelR,hold);}
+  if(bL1){DontLiftStack=on;DontDropStack=on;}//dont drop stack while scoring//dont lift stack while stacking
+  else {DontLiftStack=off;DontDropStack=off;}
+
+  //if (bL2==1){CubeTrack=on;}
   
- if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){} 
-  else if (intake == off) {if (bB && !G::intakeprev) intake = on;run(RightRoller, 100); run(LeftRoller, 100);} 
-  else if (intake == on) { 
+if (bRight)
+{if(CubeSense2.pressing()==1){DontDropStack=on;}
 
-    if ( bB && !G::intakeprev) intake = off;run(RightRoller, 0); run(LeftRoller, 0);}
-       G::intakeprev = bB;
-       //INTAKE
-if (bY==1){run(RightRoller, -80); run(LeftRoller, -80);}
-  wait(20);
-  if (bL2==1){CubeTrack=on;}
-
+ramp=fwrd;
+RunRamp=on;
+while(RunRamp==on){wait(20);}
+//Move(40,-2.1,1,coast,10000);
+arm.suspend();
+ArmL.setVelocity(20,vex::velocityUnits::pct);
+ArmR.setVelocity(20,vex::velocityUnits::pct);
+ArmL.startRotateTo(120,rotationUnits::deg);
+ArmR.startRotateTo(120,rotationUnits::deg);
+ramp=bwrd;
+Move(15,-5.8,1,brake,10000);
+RunRamp=on;
+Move(15,-6.8,1,brake,10000);
+arm.resume();}
+ wait(20);
 }
