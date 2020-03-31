@@ -27,6 +27,7 @@ int GyroTrack() {
 	inertial::quaternion  Inertial_quaternion;
   Inertial.calibrate();
 	wait(2000);                             //wait (X) ms
+  
 	//arm.resume();
 	//rampcontroller.resume();
 	//IntakeController.resume();
@@ -627,9 +628,11 @@ int RampControl() //Function to be run as a task. this controls the ramp
 				RampWheelR.startRotateFor(directionType::fwd, -175, rotationUnits::deg);
 			}
 			double spd=0;
-			while(enc(RampR)>-400&&bLeft==0&&ramp==-1) //MOVE UP
+			while(enc(RampR)>-440&&bLeft==0&&ramp==-1) //MOVE UP
 			{
-				spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+54;
+				//spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+64;
+        spd = 60 - .6/4*(enc(-1*RampR));
+        if (spd <= 20){spd=15;}
 				if (bL2)
 				{spd=spd*0.2;}
 				run(RampR,-spd);
