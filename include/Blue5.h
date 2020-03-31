@@ -4,7 +4,7 @@ using namespace vex;
 using namespace G;
     
 AutoRunning=1;
-IntakeControler.resume();
+IntakeController.resume();
 rampwheel.resume();
 rampcontroller.resume();
 /*DontLiftStack=on;

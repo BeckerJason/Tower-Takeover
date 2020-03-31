@@ -15,6 +15,7 @@
 /*                                                                             */
 /*                                                                             */
 /*----------------------------------------------------------------------------*/
+
 #ifndef DEBUG  
 #define DEBUG
 #endif
@@ -37,9 +38,12 @@ void auton(void) {
   preautoL=false;                         //reset pre auto latch
   G::MATCHTIMER=0;                        //reset Match timer
   arm.suspend();
+	rampwheel.suspend();
 //#include "autonincludes.h"                //include auto code
 Color=Blue;
-#include "RedBlue1.h"   //12 points copied from Blue5
+//#include "RedBlue1.h"   //12 points copied from Blue5
+//#include "RedBlue2.h"   // 12 points 42 seconds working 12/9/19
+#include "RedBlue3.h"   //
 //#include "Blue1.h"  //8points working 11/16
 //#include "Blue2.h"    //9 points working, dropping 1 cube 11/16
 //#include "Blue3.h"  //12 points 44 seconds working 11/16
@@ -56,21 +60,19 @@ Color=Blue;
 void usercontrol(void) { 
   preautoL=false;                         //reset pre auto latch
   MATCHTIMER=0;                           //reset timer
+  AutoRunning=0;
 #include "usercontrol.h"
 } 
 ////////////////////////////////////
 
 // ----- MAIN -----//
 int main() 
-{
+{AutoRunning=1;
   while( Gyro.isCalibrating() )
-    {task::sleep(100);}
-  LF.setMaxTorque(100, percentUnits::pct);
-  RF.setMaxTorque(100, percentUnits::pct);
-  LB.setMaxTorque(100, percentUnits::pct);
-  RB.setMaxTorque(100, percentUnits::pct);
-  LM.setMaxTorque(100, percentUnits::pct);
-  RM.setMaxTorque(100, percentUnits::pct);
+    {wait(100);}
+
+DriveTorque(100);
+
   
   ramp=bwrd;                              //ramp direction starts as 'backward', the next step of enable will cause ramp to move forward
   AutoRunning = 0;                        //auto latch off
@@ -78,44 +80,17 @@ int main()
   RampL.resetRotation();                  //Reset ramp rotations
   ArmL.resetRotation();
   ArmR.resetRotation();                   //Reset arm rotations
-
+  stack.suspend();
 
 	pre_auton();                            //Run the pre-autonomous function. 
 	//Set up callbacks for autonomous and driver control periods.
 	Competition.autonomous(auton);
 	Competition.drivercontrol(usercontrol);
-  vex::task rampcontroller (RampControl);      //start ramp control task
+  
 	//Prevent main from exiting with an infinite loop.                        
 	while (1) {
 		wait(100);//Sleep the task for a short amount of time to prevent wasted resources.
-	if (bL1&&bL2&&bR1&&bR2)
-  {
-    arm.suspend();
-    rampcontroller.suspend();
-    IntakeControler.suspend();
-    timer2.suspend();
-    gyrotrack.suspend();
-    rampwheel.suspend();
-    printscreen.suspend();
-      intake= off;
-  RunRamp=off;
-  CubeTrack =off;
-   OTrack=off;
-   PTrack=off;
-   GTrack=off;
-  ToCube=off;
-  DontLiftStack=off;
-  DontDropStack=off;
-ramp = bwrd;
-    wait(500);
-    arm.resume();
-    rampcontroller.resume();
-    IntakeControler.resume();
-    timer2.resume();
-    gyrotrack.resume();
-    rampwheel.resume();
-    printscreen.resume();
-  }
+	
   }
   return 0;
 }

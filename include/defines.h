@@ -68,6 +68,7 @@ public:
 bool rampprev = false;
 bool intakeprev = false;
 bool clampprev = false;
+bool manualprev=false;
 static float TurnDiff = 0, THeight = 0, TWidth = 0, TurnDir = 1, TXDist = 200, GlobalCubeOffset = 160,TYDist=0;
 static int AutoRunning = 0;
 static int MoveReturn=0;
@@ -109,9 +110,9 @@ vex::motor RF = vex::motor(vex::PORT18,vex::gearSetting::ratio18_1,true);//front
 vex::motor RM = vex::motor(vex::PORT17,vex::gearSetting::ratio18_1,true);//middle right drivetrain motor
 vex::motor RB = vex::motor(vex::PORT16,vex::gearSetting::ratio18_1,true);//back right drivetrain motor
 vex::motor RightRoller = vex::motor(vex::PORT6,vex::gearSetting::ratio18_1,false);//front right intake motor
-vex::motor LeftRoller = vex::motor(vex::PORT10,vex::gearSetting::ratio18_1,true);//front left intake motor
-vex::motor ArmL = vex::motor(vex::PORT8,vex::gearSetting::ratio36_1,true);//left arm motor
-vex::motor ArmR = vex::motor(vex::PORT9,vex::gearSetting::ratio36_1,false);//right arm motor
+vex::motor LeftRoller = vex::motor(vex::PORT7,vex::gearSetting::ratio18_1,true);//front left intake motor
+vex::motor ArmL = vex::motor(vex::PORT8,vex::gearSetting::ratio36_1,true);//left arm motor //8
+vex::motor ArmR = vex::motor(vex::PORT9,vex::gearSetting::ratio36_1,false);//right arm motor//9
 vex::motor RampL = vex::motor(vex::PORT12,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
 vex::motor RampR = vex::motor(vex::PORT19,vex::gearSetting::ratio36_1,false);//right Ramp lift motor
 
@@ -146,6 +147,16 @@ vex::motor RampR = vex::motor(vex::PORT19,vex::gearSetting::ratio36_1,false);//r
                           RampR.stop(vex::brakeType::brake)
 #define StopArm(brake)    ArmL.stop(vex::brakeType::brake);\
                           ArmR.stop(vex::brakeType::brake)
+#define DriveTorque(x)    LF.setMaxTorque(x, percentUnits::pct);\
+                          RF.setMaxTorque(x, percentUnits::pct);\
+                          LB.setMaxTorque(x, percentUnits::pct);\
+                          RB.setMaxTorque(x, percentUnits::pct);\
+                          LM.setMaxTorque(x, percentUnits::pct);\
+                          RM.setMaxTorque(x, percentUnits::pct)
+#define Torque(x,y)       x.setMaxTorque(y, percentUnits::pct)
+#define Current(x,y)       x.setMaxTorque((y*.01)/2.2, torqueUnits::current)
+#define SetVel(x)
+#define GetVel(x)
 #define enc(x) x.rotation(vex::rotationUnits::deg)
 #define run(x,y) x.spin(vex::directionType::fwd, y, vex::velocityUnits::pct);
 #define runrpm(x,y) x.spin(vex::directionType::fwd, y, vex::velocityUnits::rpm);
@@ -179,18 +190,25 @@ void T(double,double,int);
 void GyroChange();
 //void SetDriveTorque(double);
 void Colors(ToggleMode,ToggleMode,ToggleMode);
-
-	vex::task printscreen (PrintScreen); 
+int AutoStack();
+void ArcTurn(float, float, char, char);
+#endif 
+#ifndef TASKS 
+#define TASKS
+vex::task gyrotrack (GyroTrack);
+vex::task printscreen (PrintScreen); 
 	//vex::task fifth (TurnToCube); 
 	vex::task timer2 (TIMER2);
-	vex::task gyrotrack (GyroTrack);
+	
   //task starttimer (ENDAUTOTIMER);         //start timer task
   vex::task arm (ArmControl);
   vex::task rampcontroller (RampControl);      //start ramp control task
-  vex::task IntakeControler (IntakeControl);
+  vex::task IntakeController (IntakeControl);
+  //IntakeController.suspend();
   //task controllerprint (PrintController);
   vex::task cubes (TurnToCube);
   vex::task rampwheel (RampWheels);
   vex::task cubeload (CubeLoad);
-
-#endif 
+  vex::task stack (AutoStack);
+  
+#endif
