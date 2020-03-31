@@ -39,9 +39,18 @@ void auton(void) {
   task IntakeControler (IntakeControl);
   task controllerprint (PrintController); //start print to task
   task cubes (TurnToCube);
+  task AC (ArmControl);
+    task rampwheel (RampWheels);
 //#include "autonincludes.h"                //include auto code
-#include "RedBlue1.h"
+//#include "RedBlue1.h"
+//#include "Blue1.h"  //8points working 11/16
+//#include "Blue2.h"    //9 points working, dropping 1 cube 11/16
+//#include "Blue3.h"  //12 points 44 seconds working 11/16
+//#include "Blue4.h"  //12 points 37 seconds working 11/16
+#include "Blue5.h"
+//#include "Red1.h"
 }
+
 //////////////////////
 
 // ------ USER CONTROL -------///
@@ -53,6 +62,8 @@ void usercontrol(void) {
   task IntakeControler (IntakeControl);
   task controllerprint (PrintController);
   task cubes (TurnToCube);
+  task rampwheel (RampWheels);
+  task AC (ArmControl);
 #include "usercontrol.h"
 } 
 ////////////////////////////////////
