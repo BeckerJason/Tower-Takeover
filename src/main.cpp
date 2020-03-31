@@ -15,9 +15,9 @@
 /*                                                                             */
 /*                                                                             */
 /*----------------------------------------------------------------------------*/
-//#define SKILL
+#define SKILL
 #ifndef DEBUG  
-#define DEBUG
+//#define DEBUG
 #endif
 #include "defines.h"            //variable and function initialization and definitions
 vex::competition Competition;   //tell robot to use competition file format
@@ -54,7 +54,7 @@ void auton(void) {
 	// rampwheel.suspend();
   // cubeload.suspend();
 //#include "autonincludes.h"                //include auto code
-Color=Blue;
+//Color=Red;
 //#include "RedBlue1.h"   //12 points copied from Blue5
 //#include "RedBlue2.h"   // 12 points 42 seconds working 2/23/20
 #include "RedBlue3.h"
