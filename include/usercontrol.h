@@ -14,7 +14,69 @@ if (bR2 == 1) {GLOBALD -= .05; wait(100); }
 wait(10);
 }  */
 #endif
- 
+#ifdef SKILL
+GlobalGyroT=0;
+wait(200);
+RampL.resetRotation();
+RampR.resetRotation();  
+ArmL.resetRotation();
+ArmR.resetRotation();
+AutoRunning=1;
+leftDrive(-10);
+rightDrive(-10);
+DontLiftStack=on;
+ManualSpeed=-100;
+intake =manual;
+//Resume controller tasks
+IntakeController.resume();
+rampwheel.resume();
+rampcontroller.resume();
+arm.suspend();
+wait(50);
+ArmL.setVelocity(80,vex::velocityUnits::pct);
+ArmR.setVelocity(80,vex::velocityUnits::pct); 
+ArmR.startRotateTo(180,rotationUnits::deg);
+ArmL.rotateTo(180,rotationUnits::deg);
+//run(ArmL,70);
+//run(ArmR,70);
+wait(500);
+intake=on;
+ArmL.startRotateTo(66,rotationUnits::deg);
+ArmR.rotateTo(66,rotationUnits::deg);
+wait(200);
+RampR.startRotateTo(-260,rotationUnits::deg); 
+RampL.rotateTo(-260,rotationUnits::deg);
+RampR.startRotateTo(-200,rotationUnits::deg); 
+RampL.rotateTo(-200,rotationUnits::deg);
+run(RampR,40);
+run(RampL,40);
+wait(300);
+DontLiftStack=off; 
+BRAKE(RampL,coast);
+BRAKE(RampR,coast);
+wait(500);
+StopArm(hold);
+ArmL.resetRotation();
+ArmR.resetRotation();
+RampL.resetRotation();
+RampR.resetRotation();  
+DontLiftStack=off;
+DontDropStack=off;
+DontLiftStack=off;
+AutoRunning = 0;
+intake=off;
+// SnapToCube = off;
+GlobalCubeOffset = 160;
+MATCHTIMER = 0;
+OTrack=on;
+GTrack=off;
+PTrack=on;
+cubeload.suspend();
+IntakeController.resume();
+rampcontroller.resume();
+rampwheel.resume();
+arm.resume();
+#endif
 DontDropStack=off;
 DontLiftStack=off;
 AutoRunning = 0;
@@ -43,7 +105,7 @@ while (1)
 {
 	if (bUp==1)
 	{ StopDrive(hold);}
-	else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10)) {
+	else if (AutoRunning == 0 && (abs(ch3) > 2 || abs(ch1) > 2)) {
 		CubeTrack=off;
 		ToCube=off;
 		run(LF, (ch3 + ch1*.3)); //(Axis3+Axis4)/2
@@ -152,5 +214,5 @@ while (1)
   }
     wait(15);
   }
-  wait(20);
+  wait(5);
 }

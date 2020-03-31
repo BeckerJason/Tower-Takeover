@@ -11,7 +11,7 @@ if(Color==Red)
     #include "RedBlue1.h" 
     break;
     case 2:    
-    //#include "Red2.h" 
+    //#include "Skills.h" 
     break;
     case 3:
     //#include "Red3.h" 
@@ -29,7 +29,7 @@ switch (selection)
     #include "RedBlue1.h" 
     break;
     case 2:
-    //#include "Blue2.h" 
+    //#include "Skills.h" 
     break;
     case 3:
     //#include "Blue3.h" 

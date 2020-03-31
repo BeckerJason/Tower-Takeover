@@ -106,16 +106,16 @@ vex::motor RampWheelR = vex::motor(vex::PORT5,vex::gearSetting::ratio18_1,false)
 vex::motor RampWheelL = vex::motor(vex::PORT4,vex::gearSetting::ratio18_1,true);//left Ramp wheel motor
 vex::motor LF = vex::motor(vex::PORT1,vex::gearSetting::ratio18_1,false);//front left drivetrain motor
 vex::motor LM = vex::motor(vex::PORT14,vex::gearSetting::ratio18_1,false);//middle left drivetrain motor
-vex::motor LB = vex::motor(vex::PORT15,vex::gearSetting::ratio18_1,false);//back left drivetrain motor
+vex::motor LB = vex::motor(vex::PORT11,vex::gearSetting::ratio18_1,false);//back left drivetrain motor
 vex::motor RF = vex::motor(vex::PORT18,vex::gearSetting::ratio18_1,true);//front right drivetrain motor
 vex::motor RM = vex::motor(vex::PORT17,vex::gearSetting::ratio18_1,true);//middle right drivetrain motor
 vex::motor RB = vex::motor(vex::PORT16,vex::gearSetting::ratio18_1,true);//back right drivetrain motor
-vex::motor RightRoller = vex::motor(vex::PORT10,vex::gearSetting::ratio18_1,false);//front right intake motor
-vex::motor LeftRoller = vex::motor(vex::PORT13,vex::gearSetting::ratio18_1,true);//front left intake motor
-vex::motor ArmL = vex::motor(vex::PORT2,vex::gearSetting::ratio36_1,true);//left arm motor //8
-vex::motor ArmR = vex::motor(vex::PORT9,vex::gearSetting::ratio36_1,false);//right arm motor//9
+vex::motor RightRoller = vex::motor(vex::PORT7,vex::gearSetting::ratio18_1,false);//front right intake motor
+vex::motor LeftRoller = vex::motor(vex::PORT15,vex::gearSetting::ratio18_1,true);//front left intake motor
+vex::motor ArmL = vex::motor(vex::PORT3,vex::gearSetting::ratio36_1,true);//left arm motor //8
+vex::motor ArmR = vex::motor(vex::PORT8,vex::gearSetting::ratio36_1,false);//right arm motor//9
 vex::motor RampL = vex::motor(vex::PORT12,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
-vex::motor RampR = vex::motor(vex::PORT19,vex::gearSetting::ratio36_1,false);//right Ramp lift motor
+vex::motor RampR = vex::motor(vex::PORT6,vex::gearSetting::ratio36_1,false);//right Ramp lift motor
 
 
 #include "VisionDef.h"
@@ -196,6 +196,7 @@ void GyroChange();
 void Colors(ToggleMode,ToggleMode,ToggleMode);
 int AutoStack();
 void ArcTurn(float, float, char, char);
+void ArcTurnG(float, float);
 #endif 
 #ifndef TASKS 
 #define TASKS

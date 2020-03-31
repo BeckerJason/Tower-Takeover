@@ -3,13 +3,16 @@ using namespace std;
 using namespace vex;
 using namespace G;
 GlobalGyroT=0;
+GlobalGyro=0;
 wait(200);
+
 RampL.resetRotation();
 RampR.resetRotation();  
 ArmL.resetRotation();
 ArmR.resetRotation();
 AutoRunning=1;
-leftDrive(-10);
+//INITIAL START
+/*leftDrive(-10);
 rightDrive(-10);
 DontLiftStack=on;
 ManualSpeed=-100;
@@ -26,13 +29,13 @@ ArmR.startRotateTo(180,rotationUnits::deg);
 ArmL.rotateTo(180,rotationUnits::deg);
 //run(ArmL,70);
 //run(ArmR,70);
-wait(300);
+wait(500);
 intake=on;
 ArmL.startRotateTo(66,rotationUnits::deg);
 ArmR.rotateTo(66,rotationUnits::deg);
 wait(200);
-RampR.startRotateTo(-240,rotationUnits::deg); 
-RampL.rotateTo(-240,rotationUnits::deg);
+RampR.startRotateTo(-260,rotationUnits::deg); 
+RampL.rotateTo(-260,rotationUnits::deg);
 RampR.startRotateTo(-200,rotationUnits::deg); 
 RampL.rotateTo(-200,rotationUnits::deg);
 run(RampR,40);
@@ -46,68 +49,86 @@ StopArm(hold);
 ArmL.resetRotation();
 ArmR.resetRotation();
 RampL.resetRotation();
-RampR.resetRotation();  
+RampR.resetRotation();*/
+/////////INITIAL END  
 DontLiftStack=off;
 intake=on;
-Move(60,10.75,1,coast,3000);
+MoveG(60,10.75,1,0,coast,3000);
 leftDrive(60);
 rightDrive(60);
 GlobalGyroT=0;
-Move(25,27.56,0,brake,6000);
+MoveG(25,20.56,0,0,brake,6000);
 //wait(1000);//leave time for ramp deploy
-wait(250);
-T(Color*45,25,5000);
-wait(250);
-Move(50,-9,1,brake,5000);
-wait(250);
-Turn(Color*-45,25,5000);
-wait(250);
+// wait(250);
+// T(Color*45,25,5000);
+// wait(250);
+// Move(50,-9,1,brake,5000);
+// wait(250);
+// Turn(Color*-45,25,5000);
+// wait(250);
+if (Color==Blue){ArcTurn(45,10,'f','r');}
+else{ArcTurn(45,10,'f','l');}
 DontLiftStack=on;
-Move(45,14,1,brake,5000);
-wait(250);
-Move(40,-2,1,brake,5000);
+if(Color==Blue){ArcTurn(45,10,'f','l');}
+else {ArcTurn(45,10,'f','r');}
+float tempturn=Inertial.heading();
+//Turn(-tempturn,20,2000);
+MoveG(25,3,0,0,brake,6000);
+// Move(45,14,1,brake,5000);
+//wait(250);
+MoveG(40,-3,1,0,brake,5000);
 intake=off;
-wait(200);
+//wait(200);
 ArmR.setVelocity(100,velocityUnits::pct);
 ArmL.setVelocity(100,velocityUnits::pct);
 ArmR.startRotateTo(420,rotationUnits::deg);
 ArmL.startRotateTo(420,rotationUnits::deg);
 T4=0;
-while (fabs(enc(ArmL))<420 && T4<2000)
+while (fabs(enc(ArmL))<400 && T4<2000)
 {wait(20);}
 StopArm(hold);
 ManualSpeed=-60;
 intake=manual;
-Move(25,4,1,brake,5000);
+MoveG(25,4,1,0,brake,5000);
 wait(300);
-Move(60,-14.56,1,coast,6000);
+MoveG(60,-5.56,1,0,coast,6000);
+tempturn=Inertial.heading();
+//Turn(-tempturn,20,2000);
 leftDrive(-60);
 rightDrive(-60);
 ArmR.startRotateTo(0,rotationUnits::deg);
 ArmL.startRotateTo(0,rotationUnits::deg);
-Move(60,-10,0,brake,6000);
+//Move(60,-10,0,brake,6000);
 wait(250);
 intake=on;
 DontLiftStack=off;
-Turn(Color*55,25,5000);
+// Turn(Color*55,25,5000);
+// wait(200);
+// Move(40,-17,1,brake,5000);
+// wait(200);
+// Turn(Color*-55,20,5000);
+// wait(200);
+if(Color==Blue){ArcTurn(55,18,'b','r');}
+else{ArcTurn(55,18,'b','l');}
+if(Color==Blue){ArcTurn(55,18,'b','l');}
+else{ArcTurn(55,18,'b','r');}
+tempturn=Inertial.heading();
+//Turn(-tempturn,20,2000);
+MoveG(30,21.5,1,0,brake,5000);
 wait(200);
-Move(40,-17,1,brake,5000);
-wait(200);
-Turn(Color*-55,20,5000);
-wait(200);
-Move(30,14.5,1,brake,5000);
-wait(200);
-Move(30,-3,1,brake,5000);
+MoveG(30,-3,1,0,brake,5000);
 
 ArmR.setVelocity(70,velocityUnits::pct);
 ArmL.setVelocity(70,velocityUnits::pct);
+ArmR.startRotateTo(280,rotationUnits::deg);
+ArmL.rotateTo(280,rotationUnits::deg);
+MoveG(20,7.5,1,0,brake,5000);
+DontLiftStack=off;
+intake=on;
 ArmR.startRotateTo(150,rotationUnits::deg);
 ArmL.rotateTo(150,rotationUnits::deg);
-Move(20,7.5,1,brake,5000);
-DontLiftStack=on;
-intake=off;
 //wait(500);
-Move(35,-7.5,1,brake,5000);
+MoveG(35,-7.5,1,0,brake,5000);
 ArmR.setVelocity(90,velocityUnits::pct);
 ArmL.setVelocity(90,velocityUnits::pct);
 ArmR.startRotateTo(0,rotationUnits::deg);
@@ -118,35 +139,28 @@ wait(300);
 T4=0;
 while(CubeSense2.pressing()&&T4<700){wait(20);}
 //wait(1000);
-DontLiftStack=on;
-Move(35,12,1,brake,5000);
-//wait(250);
-Turn(Color*126,30,8000);
-intake=off;
-Move(40,50,1,coast,7000);
+DontLiftStack=off;
+MoveG(35,12,1,0,brake,5000);
+wait(250);
+Turn(Color*120,30,10000);
+MoveG(40,50,1,Color*1200,coast,7000);
 leftDrive(20);
 rightDrive(20);
-intake=on;
-DontLiftStack=off;
-Move(20,4,0,brake,2000);
+MoveG(20,4,0,Color*1200,coast,3000);
+leftDrive(10);
+rightDrive(10);
+MoveG(10,1,0,Color*1200,brake,2000);
 //intake=off;
 //DontLiftStack=on;
 //DontDropStack=off;
 //Move(15,-1,0,brake,2000);
 if(CubeSense2.pressing()==1){DontDropStack=on;}
+stack.stop();
 ramp=fwrd;
-RunRamp=on;
-while(RunRamp==on){wait(20);}
-//Move(40,-2.1,1,coast,10000);
-ArmL.setVelocity(50,vex::velocityUnits::pct);
-ArmR.setVelocity(50,vex::velocityUnits::pct);
-ArmL.startRotateTo(90,rotationUnits::deg);
-ArmR.startRotateTo(90,rotationUnits::deg);
-ramp=bwrd;
-RunRamp=on;
-Move(40,-15.8,1,brake,10000);
-ArmR.startRotateTo(0,rotationUnits::deg);
-ArmL.startRotateTo(0,rotationUnits::deg);
+vex::task stack (AutoStack);
+
+//ArmR.startRotateTo(0,rotationUnits::deg);
+//ArmL.startRotateTo(0,rotationUnits::deg);
 /*Turn(142,40,2000);
 wait(100);
 intake=on;

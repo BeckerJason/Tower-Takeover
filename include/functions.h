@@ -347,6 +347,7 @@ int timeout) {
 ///////////////////////////////////////////////////////////////////////////
 int moveg(float speed, float dist, bool rampspeed, double gyroheading, int functiontimer)///Setting gyroheading to 10000 keeps robot in direction its facing 
 {
+  gyroheading*=10;
 	dist=dist*.95;
 	float dir;
 	if (dist < 0) {
@@ -554,7 +555,7 @@ int IntakeControl()
 			//INTAKE
 			if (bY==1){run(RightRoller, -80); run(LeftRoller, -80);}
 		}
-		wait(50);
+		wait(10);
 	}
 	return 0;
 }
@@ -573,12 +574,12 @@ int AutoStack()
   RunRamp=on;
   while(RunRamp==on){wait(20);}
   while(bLeft){wait(10);}
-  
+  wait(200);
   ArmL.setVelocity(50,vex::velocityUnits::pct);
   ArmR.setVelocity(50,vex::velocityUnits::pct);
   ArmL.startRotateTo(90,rotationUnits::deg);
   ArmR.startRotateTo(90,rotationUnits::deg);
-  Move(40,-4,1,coast,2000);
+  Move(30,-4,1,coast,2000);
   ramp=bwrd;
   RunRamp=on;
   Move(40,-7.8,1,brake,3000);
@@ -682,7 +683,7 @@ int RampControl() //Function to be run as a task. this controls the ramp
 			while(enc(RampR)>-440&&bLeft==0&&ramp==-1) //MOVE UP
 			{
 				//spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+64;
-        spd = 60 - .6/4*(enc(-1*RampR));
+        spd = 75 - .85/5*(enc(-1*RampR));
         if (spd <= 20){spd=15;}
 				if (bL2)
 				{spd=spd*0.2;}
@@ -864,7 +865,8 @@ void ArcTurn(float degree, float radius, char FBD, char LRD) //fbd fwd bkwd  lrd
   T3=0;
 	LM.resetRotation();
   RM.resetRotation();
-  GlobalGyro=0;
+  double TGyro=GlobalGyro;
+  TGyro=0;
 	//90 degrees
   double BaseSpeed=35;
 	float speedL, speedR,dirL,dirR;
@@ -922,7 +924,59 @@ else if(abs(enc(RM))>Rarcdist){dirR*=-1.0;}
 	StopDrive(brake);
 }
 
-void ArcTurnG(float degree, float radius, char FBD, char LRD) //fbd fwd bkwd  lrd left right
+void ArcTurnG(float degree, float radius) //FL:d,r FR:-d,r BL:-d,-r BR:d,-r
+{
+  
+  	LM.resetRotation();
+  RM.resetRotation();
+double slack=1.0; //Correction slack, smaller number means tighter turn tolerance
+double wb=12.0; //wheelbase width
+	double basespeed = 30.0;	//Base speed
+	double dir=1.0, adir=1.0, LS, RS;
+	if (degree > 0) { adir = 1.0; }
+	else { adir = -1.0; }
+	if (radius > 0) { dir = 1.0; } //FORWARD
+	else { dir = -1.0; }			//BACKWARD
+	GlobalGyroT = 0; //******************
+	double Tenc=0;
+	while (fabs(GlobalGyroT) / 10 < fabs(degree))
+	{	
+
+		if (degree*radius > 0) {Tenc=fabs(enc(RM)); }///LEFT
+		else {Tenc=fabs(enc(LM)); }	//RIGHT
+
+		//cout <<"Angle:"<< adir * (2 * fabs(Tenc) / (fabs(radius) + (wb / 2))) << endl;
+		//cout << "Gyro:"; cin >> GlobalGyroT;
+		//GlobalGyroT *= 10;
+		RS = LS = 1;
+		if (GlobalGyroT / 10.0 < adir*(2.0 *Tenc / (fabs(radius) + (wb / 2.0)) - slack)) //if Gyro< curve angle
+		{
+			//cout << "-" << endl;
+			if (radius > 0) { LS =0.1/* 0.5/fabs(fabs(GlobalGyroT / 10)-fabs((2.0 *Tenc / (fabs(radius) + (wb / 2.0)))))*/ ; }//fwd
+			else { RS=0.1/* 0.5/fabs(fabs(GlobalGyroT / 10)-fabs((2.0 *Tenc / (fabs(radius) + (wb / 2.0)))))*/ ; } //bwd
+		}
+		else if (GlobalGyroT / 10.0 > adir*(2.0 * Tenc / (fabs(radius) + (wb / 2.0)) + slack))
+		{
+			//cout << "+" << endl;
+			if (radius > 0) { RS = 0.1/* 0.5/fabs(fabs(GlobalGyroT / 10)-fabs((2.0 *Tenc / (fabs(radius) + (wb / 2.0)))))*/ ; }//fwd
+			else { LS =0.1/* 0.5/fabs(fabs(GlobalGyroT / 10)-fabs((2.0 *Tenc / (fabs(radius) + (wb / 2.0)))))*/ ; } //bwd
+		}
+		//cout<<"L:"<<dir*basespeed*LS<<"     R:"<<dir*basespeed*RS<<endl;
+		/*Controller.LCD.clearScreen();
+    Controller.LCD.setCursor(1,1);
+    Controller.LCD.print("%1.2f  %1.2f",dir*basespeed*LS,dir*basespeed*RS);
+    Controller.LCD.setCursor(2,1);
+    Controller.LCD.print("%1.2f  %1.2f",GlobalGyroT/10,adir*(2.0 *Tenc / (fabs(radius) + (wb / 2.0))));*/
+    leftDrive(dir*basespeed*LS);
+		rightDrive(dir*basespeed*RS);
+    //Tenc += 50;
+    wait(20);
+	}
+StopDrive(brake);
+}
+
+
+/*void ArcTurnG(float degree, float radius) //fbd fwd bkwd  lrd left right
 {
   T3=0;
 	LM.resetRotation();
@@ -932,11 +986,15 @@ void ArcTurnG(float degree, float radius, char FBD, char LRD) //fbd fwd bkwd  lr
   double BaseSpeed=15;
 	float speedL, speedR,dirL,dirR;
 	float Larcdist, Rarcdist,LR,dir,Loffset, Roffset, Rmult, Lmult; //LeftRight, Forward Backward
-	if (FBD=='F'||FBD=='f'){dir=1.0;}					////FORWARD 1
-	else{dir=-1.0;}
-  while(fabs(GlobalGyroT)<degree*10)
+	//	if(degree*radius>0){}///LEFT
+	//else{}	//RIGHT
+	if(radius>0){dir=1.0;} //FORWARD
+	else {dir=-1.0;}			//BACKWARD
+  //if (FBD=='F'||FBD=='f'){dir=1.0;}					////FORWARD 1
+	//else{dir=-1.0;}
+  while(fabs(GlobalGyroT)<fabs(degree*10))
   { Roffset=Loffset=1;
-    if (LRD=='L' ||LRD=='l')
+    if (degree*radius>0)//LEFT
     {LR=1.0;
       if (GlobalGyroT/10<2*fabs(enc(RM))/(radius+6))  //360.0 / (4.0 * 3.14159
       {Roffset=dir*1+dir*1;    }
@@ -958,5 +1016,4 @@ void ArcTurnG(float degree, float radius, char FBD, char LRD) //fbd fwd bkwd  lr
   StopDrive(brake);
 
   //T(degree)
-}
-
+}*/
