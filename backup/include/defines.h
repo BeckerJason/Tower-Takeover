@@ -23,15 +23,10 @@
 typedef enum _Toggle {on=1,off=0} ToggleMode;
 ToggleMode intake= off;
 ToggleMode RunRamp=off;
-ToggleMode CubeTrack =off;
-ToggleMode  OTrack=off;
-ToggleMode  PTrack=off;
-ToggleMode  GTrack=off;
-ToggleMode ToCube=off;
 typedef enum _directional {fwrd=-1,bwrd=1} directional;
 directional ramp = bwrd;
 typedef enum _Alliance {Red=2,Blue=1} Alliance;
-Alliance Color = Blue;  
+Alliance Color = Red;  
 
 #endif
 
@@ -57,7 +52,7 @@ class VisionObject {
 bool rampprev = false;
 bool intakeprev = false;
 bool clampprev = false;
-static float TurnDiff = 0, THeight = 0, TWidth = 0, TurnDir = 1, TXDist = 200, GlobalCubeOffset = 160,TYDist=0;
+static float TurnDiff = 0, THeight = 0, TWidth = 0, TurnDir = 1, TXDist = 200, GlobalFlagOffset = 160,TYDist=0;
 static int AutoRunning = 0;
 static int MoveReturn=0;
 static int T1 = 0, T3 = 0;
@@ -80,11 +75,11 @@ static bool preautoL;
 #define ROBOTSETUP
 vex::brain Brain;
 vex::controller   Controller = vex::controller(vex::controllerType::primary);
-vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.B);
-//vex::line  CubeSense = vex::line(Brain.ThreeWirePort.C);
-//vex::line  CubeSense2 = vex::line(Brain.ThreeWirePort.E);
-vex::limit  CubeSense = vex::limit(Brain.ThreeWirePort.F);
-vex::limit  CubeSense2 = vex::limit(Brain.ThreeWirePort.H);
+vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.A);
+vex::limit  RampLimitBottom = vex::limit(Brain.ThreeWirePort.B);
+vex::limit  RampLimit = vex::limit(Brain.ThreeWirePort.D);
+vex::line  CubeSense = vex::line(Brain.ThreeWirePort.C);
+vex::line  CubeSense2 = vex::line(Brain.ThreeWirePort.E);
 vex::motor RampWheelR = vex::motor(vex::PORT5,vex::gearSetting::ratio18_1,false);//right Ramp wheel motor
 vex::motor RampWheelL = vex::motor(vex::PORT4,vex::gearSetting::ratio18_1,true);//left Ramp wheel motor
 vex::motor LF = vex::motor(vex::PORT13,vex::gearSetting::ratio18_1,false);//front left drivetrain motor
@@ -93,8 +88,8 @@ vex::motor LB = vex::motor(vex::PORT15,vex::gearSetting::ratio18_1,false);//back
 vex::motor RF = vex::motor(vex::PORT18,vex::gearSetting::ratio18_1,true);//front right drivetrain motor
 vex::motor RM = vex::motor(vex::PORT17,vex::gearSetting::ratio18_1,true);//middle right drivetrain motor
 vex::motor RB = vex::motor(vex::PORT16,vex::gearSetting::ratio18_1,true);//back right drivetrain motor
-vex::motor RightRoller = vex::motor(vex::PORT10,vex::gearSetting::ratio18_1,false);//front right intake motor
-vex::motor LeftRoller = vex::motor(vex::PORT6,vex::gearSetting::ratio18_1,true);//front left intake motor
+vex::motor RightRoller = vex::motor(vex::PORT9,vex::gearSetting::ratio18_1,true);//front right intake motor
+vex::motor LeftRoller = vex::motor(vex::PORT6,vex::gearSetting::ratio18_1,false);//front left intake motor
 vex::motor ArmL = vex::motor(vex::PORT7,vex::gearSetting::ratio36_1,true);//left arm motor
 vex::motor ArmR = vex::motor(vex::PORT8,vex::gearSetting::ratio36_1,false);//right arm motor
 vex::motor RampL = vex::motor(vex::PORT12,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
@@ -121,40 +116,38 @@ vex::motor RampR = vex::motor(vex::PORT19,vex::gearSetting::ratio36_1,false);//r
 #define   wait vex::task::sleep   
 #define TOTALSNAPSHOTS 7
 #define BRAKE(x,y) x.stop(vex::brakeType::y)
-#define StopDrive(brake)  RF.stop(vex::brakeType::brake);\
-                          RB.stop(vex::brakeType::brake);\
-                          RM.stop(vex::brakeType::brake);\
-                          LF.stop(vex::brakeType::brake);\
-                          LB.stop(vex::brakeType::brake);\
-                          LM.stop(vex::brakeType::brake)
-#define StopRamp(brake)   RampL.stop(vex::brakeType::brake);\
-                          RampR.stop(vex::brakeType::brake)
-#define StopArm(brake)    ArmL.stop(vex::brakeType::brake);\
-                          ArmR.stop(vex::brakeType::brake)
 #define enc(x) x.rotation(vex::rotationUnits::deg)
 #define run(x,y) x.spin(vex::directionType::fwd, y, vex::velocityUnits::pct);
-#define runrpm(x,y) x.spin(vex::directionType::fwd, y, vex::velocityUnits::rpm);
-#define tower 500 //arm encoder count to reach tower
 #endif
 
 
 
 #ifndef FUNCTIONS
-#define FUNCTIONS 
-int GyroTrack();                //Task to keep track of gyro    *GlobalGyro                
-int PrintScreen();              //Task to print to Brain      
-int TurnToCube();               //Task to turn to Cube      *CubeTrack
-int TIMER2();                   //Task for Timer            *T3
-int ENDAUTOTIMER();             //Task for match timer      *MATCHTIMER
-int RampControl();              //Task for ramp control     *
-int PrintController();          //Task to print to controller
-int IntakeControl();            //Task to control intake
-void rightDrive(int);           //Right Drive
-void leftDrive(int);            //Left drive                          
-void pidTurn(float , float, float , float, int);  //Turn Function 
-int Move(float, float,bool,vex::brakeType);       //Move(speed , distance inches, ramp to max speed, end brake type)
-void ToWall(double);                              //ToWall(speed)
+#define FUNCTIONS
+int GyroTrack();
+//void run(vex::motor,double);
+//float enc(vex::motor);
+int PrintScreen();
+int TurnToCube(); 
+int TIMER2();
+void StopDrive(vex::brakeType);
+void StopLift(vex::brakeType);
+void CascadeControl();
+void AutoStack();
+void rightDrive(int);
+void leftDrive(int); 
+int Driver();
+void pidTurn(float , float, float , float, int);
+int Move(float, float,bool,vex::brakeType);
+void ToWall(double);
+void SwapColor();
 //void SetDriveTorque(double);
-
-void Colors(ToggleMode,ToggleMode,ToggleMode);
+int ENDAUTOTIMER();
+int RampControl();
+int PrintController();
 #endif 
+
+
+
+
+

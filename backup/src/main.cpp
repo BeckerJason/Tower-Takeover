@@ -36,11 +36,8 @@ void auton(void) {
   G::MATCHTIMER=0;                        //reset Match timer
   task starttimer (ENDAUTOTIMER);         //start timer task
   task rampcontroller (RampControl);      //start Ramp control task
-  task IntakeControler (IntakeControl);
   task controllerprint (PrintController); //start print to task
-  task cubes (TurnToCube);
-//#include "autonincludes.h"                //include auto code
-#include "RedBlue1.h"
+#include "autonincludes.h"                //include auto code
 }
 //////////////////////
 
@@ -50,9 +47,7 @@ void usercontrol(void) {
   MATCHTIMER=0;                           //reset timer
   task starttimer (ENDAUTOTIMER);         //start timer task
   task rampcontroller (RampControl);      //start ramp control task
-  task IntakeControler (IntakeControl);
   task controllerprint (PrintController);
-  task cubes (TurnToCube);
 #include "usercontrol.h"
 } 
 ////////////////////////////////////
@@ -60,13 +55,6 @@ void usercontrol(void) {
 // ----- MAIN -----//
 int main() 
 {
-  LF.setMaxTorque(100, percentUnits::pct);
-  RF.setMaxTorque(100, percentUnits::pct);
-  LB.setMaxTorque(100, percentUnits::pct);
-  RB.setMaxTorque(100, percentUnits::pct);
-  LM.setMaxTorque(100, percentUnits::pct);
-  RM.setMaxTorque(100, percentUnits::pct);
-  
   ramp=bwrd;                              //ramp direction starts as 'backward', the next step of enable will cause ramp to move forward
   AutoRunning = 0;                        //auto latch off
   RampR.resetRotation();
