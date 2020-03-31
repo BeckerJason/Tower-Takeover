@@ -16,7 +16,7 @@
 #include "v5_vcs.h"
 
 #ifndef DEBUG  
-#define DEBUG
+//#define DEBUG
 #endif
 
 #ifndef ENUMS
@@ -35,7 +35,7 @@ ToggleMode ContinueStack=off;
 ToggleMode ControlIntake=off;
 typedef enum _directional {fwrd=-1,bwrd=1} directional;
 directional ramp = bwrd;
-typedef enum _Alliance {Red=2,Blue=1} Alliance;
+typedef enum _Alliance {Red=-1,Blue=1} Alliance;
 Alliance Color = Blue;  
 
 #endif
@@ -198,6 +198,6 @@ void Colors(ToggleMode,ToggleMode,ToggleMode);
   vex::task controllerprint (PrintController);
   vex::task cubes (TurnToCube);
   vex::task rampwheel (RampWheels);
-  vex::task cubeload (CubeLoad);
+  vex::task cubeload;
   vex::task stack;
 #endif

@@ -82,7 +82,7 @@ int PrintScreen() {
     Brain.Screen.printAt(1, 160, "RunRamp:  %1.2f", RunRamp);
     Brain.Screen.printAt(1, 180, "ramp:  %d", ramp);
     Brain.Screen.printAt(1, 200, "RampL:  %1.2f", enc(RampL));
-    //Brain.Screen.printAt(1, 220, "NULL:  %1.2f", false);
+    Brain.Screen.printAt(1, 220, "Color (R -1, B 1):  %d", Color);
     //Brain.Screen.printAt(1, 240, "NULL:  %1.2f", false);
 		//Brain.Screen.printAt(1, 90, "%f",  Gyro.value(vex::rotationUnits::raw));
 		//Brain.Screen.printAt(340, 20, "ARM: %1.1f", enc(ArmR));
@@ -524,7 +524,7 @@ int AutoStack()
   ramp=bwrd;
   Move(20,-6,1,coast,3000);
   RunRamp=on;
-  Move(40,-2.8,0,brake,3000);
+  Move(40,-3.5,0,brake,3000);
   ArmR.startRotateTo(0,rotationUnits::deg);
   ArmL.startRotateTo(0,rotationUnits::deg);
   wait(1000);

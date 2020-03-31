@@ -35,15 +35,15 @@ while (1)
 {
   if (bUp==1)
   { StopDrive(hold);}
-  else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10)) {
+  else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch4) > 10)) {
       CubeTrack=off;
       ToCube=off;
-      run(LF, (ch3 + ch1/3)); //(Axis3+Axis4)/2
-      run(LM, (ch3 + ch1/3));
-      run(LB, (ch3 + ch1/3)); //(Axis3+Axis4)/2
-      run(RF, (ch3 - ch1/3)); //(Axis3-Axis4)/2
-      run(RM, (ch3 - ch1/3));
-      run(RB, (ch3 - ch1/3)); //(Axis3-Axis4)/2
+      run(LF, (ch3 + ch4/3)); //(Axis3+Axis4)/2
+      run(LM, (ch3 + ch4/3));
+      run(LB, (ch3 + ch4/3)); //(Axis3+Axis4)/2
+      run(RF, (ch3 - ch4/3)); //(Axis3-Axis4)/2
+      run(RM, (ch3 - ch4/3));
+      run(RB, (ch3 - ch4/3)); //(Axis3-Axis4)/2
   }
    else if (AutoRunning == 0&&CubeTrack==off&&ToCube==off) {
     StopDrive(brake);

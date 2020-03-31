@@ -45,10 +45,10 @@ while (1)
     StopDrive(hold);        //Defend Position
   }
 
-  else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10)) 
+  else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch4) > 10)) 
   { 
     FSpeed =ch3;
-    TSpeed =0.33*ch1;
+    TSpeed =0.33*ch4;
     CubeTrack=off; ToCube=off;
     run(LF, (FSpeed + TSpeed)); 
     run(LM, (FSpeed + TSpeed));
@@ -82,7 +82,7 @@ while (1)
 	else {DontLiftStack=off;DontDropStack=off;}
 
 	//if (bL2==1){CubeTrack=on;}
-	if (bX){task cubeload (CubeLoad);}
+	if (bX){vex::task cubeload (CubeLoad);}
 	else if (bLeft){cubeload.suspend();}
 	if (bRight){vex::task stack (AutoStack);}
 	else if (bX){stack.stop();}
@@ -134,7 +134,37 @@ while (1)
       arm.resume();
       IntakeController.resume();
     }
-    wait(5);
+    
+    if (bL1&&bL2&&bR1&&bR2)
+  {
+    StopDrive(hold);
+    arm.suspend();
+    rampcontroller.suspend();
+    IntakeController.suspend();
+    timer2.suspend();
+    gyrotrack.suspend();
+    rampwheel.suspend();
+    printscreen.suspend();
+      intake= off;
+  RunRamp=off;
+  CubeTrack =off;
+   OTrack=off;
+   PTrack=off;
+   GTrack=off;
+  ToCube=off;
+  DontLiftStack=off;
+  DontDropStack=off;
+ramp = bwrd;
+    wait(500);
+    arm.resume();
+    rampcontroller.resume();
+    IntakeController.resume();
+    timer2.resume();
+    gyrotrack.resume();
+    rampwheel.resume();
+    printscreen.resume();
+  }
+  wait(5);
   }
   wait(5);
 }

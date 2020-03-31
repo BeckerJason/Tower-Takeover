@@ -3,7 +3,7 @@ using namespace std;
 using namespace vex;
 using namespace G;
 
-Color=Blue;
+
 AutoRunning=1;
 
 intake=off;
@@ -13,17 +13,23 @@ RampWheelL.resetRotation();
  RampWheelR.resetRotation();
 rightDrive(-10);
 leftDrive(-10);
+arm.suspend();
      ArmL.setVelocity(100,vex::velocityUnits::pct);
      ArmR.setVelocity(100,vex::velocityUnits::pct);
-     arm.suspend();
+     
+     ArmR.startRotateTo(300,rotationUnits::deg);
+     ArmL.rotateTo(300,rotationUnits::deg);
+     ManualSpeed=-100;
+     intake=manual;
      ArmR.startRotateTo(600,rotationUnits::deg);
      ArmL.rotateTo(600,rotationUnits::deg);
+     intake=on;
      RampWheelL.setVelocity(60,vex::velocityUnits::pct);
      RampWheelR.setVelocity(60,vex::velocityUnits::pct);
      RampWheelR.startRotateTo(-150,rotationUnits::deg);
      RampWheelL.startRotateTo(-150,rotationUnits::deg);
-     ArmL.setVelocity(50,vex::velocityUnits::pct);
-     ArmR.setVelocity(50,vex::velocityUnits::pct);
+     //ArmL.setVelocity(50,vex::velocityUnits::pct);
+     //ArmR.setVelocity(50,vex::velocityUnits::pct);
      ArmR.startRotateTo(0,rotationUnits::deg);
      ArmL.rotateTo(0,rotationUnits::deg);
      arm.suspend();
@@ -89,10 +95,10 @@ Move(60,-5.5,1,brake,5000);//4-5cubes(3green, maybe 1purp)
      Move(45,4.2,1,coast,10000);
      ManualSpeed=-50;
      intake=manual;
-     Move(45,2.1,0,brake,10000);
+     Move(65,2.1,0,brake,10000);
      //double tempG=-GlobalGyro/10;
      //Turn(tempG,20,10000);
-     Move(45,-5.14104,0,brake,10000);
+     Move(65,-5.14104,0,brake,10000);
      ArmR.startRotateTo(0,rotationUnits::deg);
      ArmL.rotateTo(0,rotationUnits::deg);
      intake=on;
@@ -129,30 +135,30 @@ T(180*Color,30,5000);
 // CubeTrack=on;
 // while(CubeTrack==on){wait(100);}
 wait(100);
-Move(40,12,1,brake,8000);
+Move(60,12,1,brake,8000);
 wait(100);
 T(130*Color,30,5000);//135
 wait(100);
 Move(60,12.25,1,brake,8000);
 wait(100); 
-Turn(-10*Color,30,5000);//-35
+Turn(-20*Color,30,5000);//-35
 // GTrack=off;
 // PTrack=on;
 // OTrack=off;
 // CubeTrack=on;
 // while(CubeTrack==on){wait(100);}
 // wait(100);
-Move(50,17,1,brake,8000);
+Move(60,17,1,brake,8000);
 // CubeTrack=on;
 // while(CubeTrack==on){wait(100);}
 // wait(100);
-Move(30,10,1,brake,8000);
+Move(60,11,1,brake,8000);
 wait(200);
-Move(60, -3,1,brake,3000);
+/*Move(60, -3,1,brake,3000);
 wait(100);
 Turn(-45*Color,30,5000);
 wait(100);
-Move(60,-7,1,brake,8000);
+Move(60,-8,1,brake,8000);
 wait(100);
 Turn(50*Color,30,5000);
 // GTrack=on;
@@ -161,15 +167,16 @@ Turn(50*Color,30,5000);
 // CubeTrack=on;
 // while(CubeTrack==on){wait(100);}
 wait(100);
-Move(30, 15,1,brake,3000);
-wait(100);
-Move(60, -22,1,brake,3000);
+Move(60, 17,1,brake,3000);
+wait(100);*/
+Move(60, -16,1,brake,3000);//22
 wait(100);
 //T(0*Color,30,5000);
 //T(-88*Color,30,5000);//-92
-Turn(-175,30,5000);
+Turn(-187*Color,30,5000);
 wait(100);
-Move(25, 23,1,brake,3000);
+Move(60, 19,1,brake,3000);
+Move(10, 4,1,brake,1500);
 AutoStack();
 
 /*Move(60,-4.1575,1,brake,5000);
