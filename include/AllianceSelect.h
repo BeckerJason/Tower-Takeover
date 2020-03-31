@@ -2,7 +2,7 @@
 #include "defines.h" 
 using namespace G; 
 #ifndef DEBUG //if DEBUG is defined earlier this section will not compile   //screen 480x272
-printscreen.suspend();
+
  
         
   
@@ -39,10 +39,10 @@ printscreen.suspend();
   if (Color==1)	Brain.Screen.clearScreen(vex::color::blue);//show blue back
   else Brain.Screen.clearScreen(vex::color::red);//show red back
   Brain.Screen.drawRectangle(20, 1, 430, 300, vex::color::black);
-  selection = 1;
+  selection = 0;
   int select=0;
-  /*while(1)
-  { 
+  while(1)
+  {
 for(int i=1;i<=4;i++)
 { 
   if(i==selection){Brain.Screen.setPenColor(color::green);}
@@ -74,12 +74,6 @@ else if (Brain.Screen.yPosition() > 110){selection=3;}
 else if (Brain.Screen.yPosition() > 70){selection=2;}
 else if (Brain.Screen.yPosition() > 30){selection=1;}
 }
-if (selection>1&&selection<4)
-{
-  selection-=bUp;
-  selection+=bDown;
-while(bUp||bDown){wait(10);}
-}
 
 if (select == 1) { Brain.Screen.drawRectangle(177, 177, 126, 46, vex::color::green); }//else if selection==3 draw green box around select
 Brain.Screen.setPenColor(color::black);
@@ -88,8 +82,7 @@ Brain.Screen.drawRectangle(180, 180, 120, 40, vex::color::white);
 Brain.Screen.printAt(210,210, false, "SELECT");
 if (select == 1 && Brain.Screen.pressing() == 0) { break; } //else if Touch within select box&& Selection >0 :: selection=3
 wait(75);
-  }*/
-printscreen.resume();
-wait(1000);
+  }
+
 
 #endif

@@ -1,7 +1,9 @@
+
+//#include "turret.h"
 #include "defines.h"
 using namespace std;
 using namespace G;
- 
+
 
 if(Color==Red)  
 { 
