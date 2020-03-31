@@ -96,7 +96,8 @@ double ManualSpeed;
 #define ROBOTSETUP
 vex::brain Brain;
 vex::controller   Controller = vex::controller(vex::controllerType::primary);
-vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.B);
+//vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.B);
+vex::inertial    Inertial( vex::PORT20);
 //vex::line  CubeSense = vex::line(Brain.ThreeWirePort.C);
 //vex::line  CubeSense2 = vex::line(Brain.ThreeWirePort.E);
 vex::limit  CubeSense = vex::limit(Brain.ThreeWirePort.F);

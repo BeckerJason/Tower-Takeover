@@ -24,7 +24,7 @@ int GyroTrack() {
 	//rampwheel.suspend();
 	//printscreen.suspend();
 	wait(3500);                             //wait (X) ms
-	Gyro.startCalibration();                //start Gyro Calibration
+	Inertial.calibrate();
 	wait(2000);                             //wait (X) ms
 	//arm.resume();
 	//rampcontroller.resume();
@@ -35,7 +35,7 @@ int GyroTrack() {
 	//printscreen.resume();
 #endif
 	while (1) {
-		CurrentGyro=Gyro.value(vex::rotationUnits::raw);
+		CurrentGyro=Inertial.heading()*10;
 		//if going from 3600 to 0
 		if(GyroTCheck>2500&&GyroTCheck<=3600&& CurrentGyro<1000)
 		{GyroAdd=3600-GyroTCheck+ CurrentGyro;}
@@ -52,8 +52,8 @@ int GyroTrack() {
 		else {GyroAdd = GyroTCheck-CurrentGyro;}
 		GyroTCheck = CurrentGyro;
 		if (GyroAdd>0)
-		{GlobalGyro += GyroAdd*0.93023;GlobalGyroT += GyroAdd*0.93023;}
-		else{GlobalGyro+=GyroAdd*0.94736;GlobalGyroT+=GyroAdd*0.94736;}
+		{GlobalGyro += GyroAdd;GlobalGyroT += GyroAdd;}
+		else{GlobalGyro+=GyroAdd;GlobalGyroT+=GyroAdd;}
 
 		/*file.open("DATA.csv",ios::out | ios::app | ios::ate );
 		file<<counter<<","<< Gyro.value(vex::rotationUnits::raw)<<","<<GlobalGyro<<endl;

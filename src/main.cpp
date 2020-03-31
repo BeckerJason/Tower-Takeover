@@ -83,10 +83,8 @@ int main()
 {
   //std::cout<<"help";
   //AutoRunning=1;
-   while( Gyro.isCalibrating() )
-     {wait(100);}
 
-  DriveTorque(100);
+DriveTorque(100);
 
   
   //AutoRunning = 0;                        //auto latch off
