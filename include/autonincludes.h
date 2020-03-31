@@ -8,7 +8,7 @@ if(Color==Red)
   switch (selection) 
   {
     case 1:
-    //#include "Red1.h" 
+    #include "RedBlue1.h" 
     break;
     case 2:    
     //#include "Red2.h" 
@@ -26,7 +26,7 @@ else
 switch (selection)
   {
     case 1:
-    //#include "Blue1.h" 
+    #include "RedBlue1.h" 
     break;
     case 2:
     //#include "Blue2.h" 

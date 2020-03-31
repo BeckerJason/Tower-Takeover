@@ -11,13 +11,54 @@ int ENDAUTOTIMER() {
   return 0;
 }
 int GyroTrack() {
+  
   float GyroAdd = 0;
   float GyroTCheck = 0;
-
+  float CurrentGyro=0;
+  //std::ofstream file;
+  int counter=0;
+      arm.suspend();
+    rampcontroller.suspend();
+    IntakeControler.suspend();
+    timer2.suspend();
+    rampwheel.suspend();
+    printscreen.suspend();
+    wait(3500);                             //wait (X) ms
+  Gyro.startCalibration();                //start Gyro Calibration
+  wait(2000);                             //wait (X) ms
+      arm.resume();
+    rampcontroller.resume();
+    IntakeControler.resume();
+    timer2.resume();
+    rampwheel.resume();
+    #ifdef DEBUG 
+    printscreen.resume();
+    #endif
   while (1) {
-    GyroAdd = Gyro.value(vex::rotationUnits::raw) - GyroTCheck;
-    GyroTCheck = Gyro.value(vex::rotationUnits::raw);
-    GlobalGyro += GyroAdd;
+    CurrentGyro=Gyro.value(vex::rotationUnits::raw);
+    //if going from 3600 to 0
+    if(GyroTCheck>2500&&GyroTCheck<=3600&& CurrentGyro<1000)
+    {GyroAdd=3600-GyroTCheck+ CurrentGyro;}
+    //if going gtom -3600 to 0
+    else if(GyroTCheck<-2500&&GyroTCheck>-3600&& CurrentGyro>-1000)
+  {GyroAdd=-3600-GyroTCheck+ CurrentGyro;}
+  //if going from 0 to 3600
+  else if (GyroTCheck>-1000&&GyroTCheck<1000&&CurrentGyro>2500)
+  {GyroAdd=-GyroTCheck- 3600-CurrentGyro;}
+//going from 0 to -3600
+else if (GyroTCheck<1000&&GyroTCheck>-1000&&CurrentGyro<-2500)
+  {GyroAdd=-GyroTCheck-3600-CurrentGyro;}
+
+  else {GyroAdd = GyroTCheck-CurrentGyro;}
+    GyroTCheck = CurrentGyro;
+    if (GyroAdd>0)
+    {GlobalGyro += GyroAdd*0.93023;GlobalGyroT += GyroAdd*0.93023;}
+    else{GlobalGyro+=GyroAdd*0.94736;GlobalGyroT+=GyroAdd*0.94736;}
+        
+  /*file.open("DATA.csv",ios::out | ios::app | ios::ate );
+  file<<counter<<","<< Gyro.value(vex::rotationUnits::raw)<<","<<GlobalGyro<<endl;
+  file.close();
+      counter++;*/
     wait(5);
   }
   return 0;
@@ -29,19 +70,23 @@ int GyroTrack() {
   return motorname.rotation(vex::rotationUnits::deg);
 }*/
 int PrintScreen() {
+  
   while (1) {
+
     Brain.Screen.clearScreen(vex::color::black);
     Brain.Screen.setPenColor(vex::color::white);
-    Brain.Screen.printAt(1, 60, "%f", Gyro.value(vex::rotationUnits::raw));
-    Brain.Screen.printAt(340, 20, "ARM: %1.1f", ArmR.velocity(percentUnits::pct));
+    Brain.Screen.printAt(1, 60, "%f", G::GlobalGyro);
+    //Brain.Screen.printAt(1, 90, "%f",  Gyro.value(vex::rotationUnits::raw));
+    Brain.Screen.printAt(340, 20, "ARM: %1.1f", enc(ArmR));
     Brain.Screen.printAt(100, 40, "P: H:%d    Y:%d", Vision.objects[FinalObject].height, Vision.objects[FinalObject].centerY);
-    Brain.Screen.printAt(100, 80, "green %X ", GreenCube.centerX[0]);
+    //Brain.Screen.printAt(100, 80, "green %X ", GreenCube.centerX[0]);
     Brain.Screen.printAt(340, 140, "MT %d ", MATCHTIMER);
     Brain.Screen.printAt(340, 160, "Ramp %d ", ramp);
     Brain.Screen.printAt(340, 180, "RampEnc %f ", enc(RampR));
     Brain.Screen.printAt(340, 200, "cube %d ", CubeSense.pressing());
     Brain.Screen.printAt(340, 220, "cube %d ", CubeSense2.pressing());
     wait(75);
+
   }
   return 0;
 }
@@ -101,12 +146,14 @@ void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 	RM.resetRotation();
   double turnspeed=speed;
   degrees*=10;
+  double val=1;
 	while(fabs(GlobalGyro) < fabs(degrees))
 	{
-    if(fabs(fabs(GlobalGyro)-fabs(degrees))<10)
-    {
-    turnspeed=speed*0.5;
-    }
+    val=fabs((GlobalGyro)/(degrees));
+    turnspeed=speed*(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419);
+    if(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419>.8)
+    {turnspeed=speed*.8;}
+
 		////////////////////////////////////FAILSAFE TIMEOUT
 		if(T3 > TimeOut  && TimeOut > 0){break;}
 		else if(abs(enc(LM))>abs(enc(RM))+3)///////
@@ -132,6 +179,63 @@ void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 			run(RF,-dir*turnspeed);}
       wait(10);
 	}
+  StopDrive(hold);
+}
+void T(double degrees, double speed, int TimeOut)//, int Timeout) similar to turn, suing start angle as 0 always
+{
+  double dir=1;
+  degrees*=10;
+
+	//float ticks = abs(degrees*7.7);
+	T3=0;
+	LM.resetRotation();
+	RM.resetRotation();
+  double turnspeed;
+  double TGyro;
+  for(int i=0;i<1;i++)
+  {	
+  if (degrees-GlobalGyroT > 1){dir=-1;}
+	else if (degrees-GlobalGyroT < -1){dir=1;}
+  else{return;}
+  turnspeed=speed;
+  TGyro=GlobalGyroT;
+  float val=1;
+	while(fabs(GlobalGyroT-TGyro) < fabs(degrees-TGyro))
+	{
+    val=fabs((GlobalGyroT-degrees)/(TGyro-degrees));
+    turnspeed=speed*(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419);
+    
+    
+
+		////////////////////////////////////FAILSAFE TIMEOUT
+		if(T3 > TimeOut  && TimeOut > 0){StopDrive(hold);return;}
+		else if(abs(enc(LM))>abs(enc(RM))+3)///////
+		{run(LM,dir*(turnspeed*(abs(enc(RM))/abs(enc(LM)))));
+			run(LF,dir*(turnspeed*(abs(enc(RM))/abs(enc(LM)))));
+			run(LB,dir*(turnspeed*(abs(enc(RM))/abs(enc(LM)))));
+			run(RM,-dir*turnspeed);
+			run(RB,-dir*turnspeed);
+			run(RF,-dir*turnspeed);}
+		else if(abs(enc(LM))<abs(enc(RM))-3)///////
+		{run(LM,turnspeed*dir);
+			run(LF,turnspeed*dir);
+			run(LB,turnspeed*dir);
+			run(RM,-dir*(turnspeed*(abs(enc(LM))/abs(enc(RM)))));
+			run(RB,-dir*(turnspeed*(abs(enc(LM))/abs(enc(RM)))));
+			run(RF,-dir*(turnspeed*(abs(enc(LM))/abs(enc(RM)))));}
+		else{
+			run(LM,turnspeed*dir);
+			run(LF,turnspeed*dir);
+			run(LB,turnspeed*dir);
+			run(RM,-dir*turnspeed);
+			run(RB,-dir*turnspeed);
+			run(RF,-dir*turnspeed);}
+      wait(10);
+	}
+  StopDrive(hold);
+  speed*=0.5;
+  //wait(200);
+}
   StopDrive(hold);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -247,7 +351,7 @@ int move(float speed, float dist, bool rampspeed,int functiontimer) {
   if (rampspeed) {
     counter = 50;
   }
-while (fabs(enc(LM)) < fabs((dist * 360.0 / (4.0 * 3.14159))) && T3 < functiontimer&&!bX) {
+while (fabs(enc(LM)) < fabs((dist * 360.0 / (4.0 * 3.14159))) && T3 < functiontimer&&!bLeft) {
 
     float Roffset = 1.0;
     if (fabs(enc(LM)) < fabs((enc(RM)) + 2)) {
@@ -334,19 +438,26 @@ int CubeLoad()
   IntakeControler.suspend();
   rampwheel.suspend();
   arm.suspend();
-  ArmL.setVelocity(50, velocityUnits::rpm);
-        ArmR.setVelocity(50, velocityUnits::rpm);
+  ArmL.setVelocity(90, velocityUnits::rpm);
+        ArmR.setVelocity(90, velocityUnits::rpm);
   ArmL.startRotateTo(0, rotationUnits::deg);
   ArmR.rotateTo(0, rotationUnits::deg);
+  run(LeftRoller,0);
+  run(RightRoller,0);
   RampWheelL.setVelocity(100, velocityUnits::rpm);
         RampWheelR.setVelocity(100, velocityUnits::rpm);
-          LeftRoller.setVelocity(100, velocityUnits::rpm);
-        RightRoller.setVelocity(100, velocityUnits::rpm);
+     
         RampWheelL.startRotateFor(directionType::fwd, -265, rotationUnits::deg);
         RampWheelR.rotateFor(directionType::fwd, -265, rotationUnits::deg); 
+            LeftRoller.setVelocity(100, velocityUnits::rpm);
+        RightRoller.setVelocity(100, velocityUnits::rpm);
         RightRoller.startRotateFor(directionType::fwd, -30, rotationUnits::deg);
-        LeftRoller.rotateFor(directionType::fwd, -30, rotationUnits::deg); 
-        
+        LeftRoller.rotateFor(directionType::fwd, -30, rotationUnits::deg);
+        ArmL.setVelocity(70, velocityUnits::rpm);
+        ArmR.setVelocity(70, velocityUnits::rpm); 
+        ArmR.startRotateTo(380,rotationUnits::deg);
+ArmL.rotateTo(380,rotationUnits::deg);
+        arm.resume();
       IntakeControler.resume();
   rampwheel.resume();
 
@@ -463,7 +574,7 @@ int RampControl() //Function to be run as a task. this controls the ramp
           RampWheelR.startRotateFor(directionType::fwd, -175, rotationUnits::deg); 
         }
         double spd=0;
-        while(enc(RampR)>-390&&bX==0&&ramp==-1) //MOVE UP
+        while(enc(RampR)>-400&&bLeft==0&&ramp==-1) //MOVE UP
         {
           spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+58;
           if (bL2)
@@ -479,7 +590,7 @@ int RampControl() //Function to be run as a task. this controls the ramp
       }
       else 
       {
-        while(enc(RampR)<-20&&bX==0&&ramp==1)
+        while(enc(RampR)<-20&&bLeft==0&&ramp==1)
         {
           run(RampR,40);
           run(RampL,40);
@@ -607,7 +718,7 @@ int TurnToCube()
       {offCounter++;}
       else if (offCounter>0)
       {offCounter--;}
-      if (offCounter==5)
+      if (offCounter==20)
       {CubeTrack=off;ToCube=off;offCounter=0;}
       
 
@@ -620,13 +731,13 @@ int TurnToCube()
       {
         if (fabs(TurnDiff>15))
         {
-        leftDrive(40+(0.0005*pow(TurnDiff,2)*+8*pow(10,-16)*TurnDiff+10.8019)*-TurnDir);
-        rightDrive(40+(0.0005*pow(TurnDiff,2)*+8*pow(10,-16)*TurnDiff+10.8019)*TurnDir);
+        leftDrive(20+(0.0005*pow(TurnDiff,2)*+8*pow(10,-16)*TurnDiff+10.8019)*-TurnDir);
+        rightDrive(20+(0.0005*pow(TurnDiff,2)*+8*pow(10,-16)*TurnDiff+10.8019)*TurnDir);
         }
         else
         {
-          leftDrive(40);
-          rightDrive(40);
+          leftDrive(20);
+          rightDrive(20);
         }
         if(CubeSense.pressing() || CubeSense2.pressing())
         {ToCube=off;CubeTrack=off;StopDrive(hold); wait(200);}
@@ -634,8 +745,8 @@ int TurnToCube()
       }
       else{StopDrive(hold);}
     }
-
-    wait(15);
+    
+    wait(20);
   }
   return 0;  
 }

@@ -7,7 +7,7 @@ using namespace vex;
 /*while(DEBUG){
     if (bUp == 1) { GLOBALP += .01; wait(100); }
             if (bDown == 1) { GLOBALP -= .01; wait(100); }
-    if (bX== 1) { GLOBALI += .0000001; wait(100); }
+    if (bLeft== 1) { GLOBALI += .0000001; wait(100); }
             if (bB == 1) {GLOBALI -= .0000001; wait(100); }
     if (bR1== 1) { GLOBALD += .05; wait(100); }
             if (bR2 == 1) {GLOBALD -= .05; wait(100); }
@@ -17,6 +17,7 @@ using namespace vex;
 DontDropStack=off;
 DontLiftStack=off;
 AutoRunning = 0;
+intake=off;
 // SnapToCube = off;
 GlobalCubeOffset = 160;
 MATCHTIMER = 0;
@@ -25,8 +26,11 @@ GTrack=off;
 PTrack=on;
 cubeload.suspend();
 IntakeControler.resume();
+rampcontroller.resume();
 rampwheel.resume();
-  /*if (!bLeft)
+arm.resume();
+
+  /*if (!bX)
   {
   RampR.startRotateTo(-140,rotationUnits::deg);
   RampL.rotateTo(-140,rotationUnits::deg);
@@ -41,29 +45,56 @@ while (1)
   else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10)) {
       CubeTrack=off;
       ToCube=off;
-      run(LF, (ch3 + ch1/3)); //(Axis3+Axis4)/2
-      run(LM, (ch3 + ch1/3));
-      run(LB, (ch3 + ch1/3)); //(Axis3+Axis4)/2
-      run(RF, (ch3 - ch1/3)); //(Axis3-Axis4)/2
-      run(RM, (ch3 - ch1/3));
-      run(RB, (ch3 - ch1/3)); //(Axis3-Axis4)/2
+      run(LF, (ch3 + ch1*.3)); //(Axis3+Axis4)/2
+      run(LM, (ch3 + ch1*.3));
+      run(LB, (ch3 + ch1*.3)); //(Axis3+Axis4)/2
+      run(RF, (ch3 - ch1*.3)); //(Axis3-Axis4)/2
+      run(RM, (ch3 - ch1*.3));
+      run(RB, (ch3 - ch1*.3)); //(Axis3-Axis4)/2
   }
+  else if (AutoRunning==0)
+  {
+    StopDrive(coast);
+  }
+   /*if (bUp==1)
+  { StopDrive(hold);}
+  else if( AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10))
+  {
+  if(abs(LF.velocity(vex::velocityUnits::pct))>(ch3 + ch1))
+        {
+            run(LF, ((ch3 + ch1)+LF.velocity(vex::velocityUnits::pct)+LF.velocity(vex::velocityUnits::pct))/3); //(Axis3+Axis4)/2
+			run(LM, ((ch3 + ch1)+LM.velocity(vex::velocityUnits::pct)+LM.velocity(vex::velocityUnits::pct))/3); //(Axis3+Axis4)/2
+			run(LB, ((ch3 + ch1)+LB.velocity(vex::velocityUnits::pct)+LB.velocity(vex::velocityUnits::pct))/3); //(Axis3+Axis4)/2
+			run(RF, ((ch3 - ch1)+RF.velocity(vex::velocityUnits::pct)+RF.velocity(vex::velocityUnits::pct))/3);//(Axis3-Axis4)/2
+			run(RM, ((ch3 - ch1)+RM.velocity(vex::velocityUnits::pct)+RM.velocity(vex::velocityUnits::pct))/3);//(Axis3-Axis4)/2
+			run(RB, ((ch3 - ch1)+RB.velocity(vex::velocityUnits::pct)+RB.velocity(vex::velocityUnits::pct))/3);//(Axis3-Axis4)/2
+          
+            } 
+         else if{
+			run(LF, (ch3 + ch1)); //(Axis3+Axis4)/2
+			run(LM, (ch3 + ch1)); //(Axis3+Axis4)/2
+			run(LB, (ch3 + ch1)); //(Axis3+Axis4)/2
+			run(RF, (ch3 - ch1));//(Axis3-Axis4)/2
+			run(RM, (ch3 - ch1));//(Axis3-Axis4)/2
+			run(RB, (ch3 - ch1));//(Axis3-Axis4)/2
+         }
    else if (AutoRunning == 0&&CubeTrack==off&&ToCube==off) {
-    StopDrive(brake);
+    StopDrive(coast);
   } else {
-  } 
+  }
+  } */
 //ARM
   
   if (ramp == fwrd) {if (bA && !G::rampprev) {ramp = bwrd;RunRamp=on;}} 
   else if (ramp == bwrd) {if ( bA && !G::rampprev) {ramp = fwrd;RunRamp=on;}}
     G::rampprev=bA ;
-    if (bX==1){RunRamp=off;}
+    if (bLeft==1){RunRamp=off;}
 
   if(bL1){DontLiftStack=on;DontDropStack=on;}//dont drop stack while scoring//dont lift stack while stacking
   else {DontLiftStack=off;DontDropStack=off;}
 
   //if (bL2==1){CubeTrack=on;}
-  if (bLeft){task cubeload (CubeLoad);}
+  if (bX){task cubeload (CubeLoad);}
   if (bDown){cubeload.suspend();}
 if (bRight)
 {if(CubeSense2.pressing()==1){DontDropStack=on;}

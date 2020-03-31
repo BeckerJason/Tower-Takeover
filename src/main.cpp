@@ -15,7 +15,9 @@
 /*                                                                             */
 /*                                                                             */
 /*----------------------------------------------------------------------------*/
-
+#ifndef DEBUG  
+#define DEBUG
+#endif
 #include "defines.h"            //variable and function initialization and definitions
 vex::competition Competition;   //tell robot to use competition file format
 #include "functions.h"          //Functions / tasks 
@@ -34,15 +36,18 @@ void pre_auton(void) {
 void auton(void) { 
   preautoL=false;                         //reset pre auto latch
   G::MATCHTIMER=0;                        //reset Match timer
+  arm.suspend();
 //#include "autonincludes.h"                //include auto code
-//#include "RedBlue1.h"
+Color=Blue;
+#include "RedBlue1.h"   //12 points copied from Blue5
 //#include "Blue1.h"  //8points working 11/16
 //#include "Blue2.h"    //9 points working, dropping 1 cube 11/16
 //#include "Blue3.h"  //12 points 44 seconds working 11/16
 //#include "Blue4.h"  //12 points 37 seconds working 11/16
-//#include "Blue5.h"
+//#include "Blue5.h" //12 points 32 seconds working 11/26
 //#include "Red1.h"
-#include "Red2.h"
+//#include "Red2.h"
+//#include "SkillsAuto.h" 
 }
 
 //////////////////////
@@ -58,7 +63,8 @@ void usercontrol(void) {
 // ----- MAIN -----//
 int main() 
 {
-  
+  while( Gyro.isCalibrating() )
+    {task::sleep(100);}
   LF.setMaxTorque(100, percentUnits::pct);
   RF.setMaxTorque(100, percentUnits::pct);
   LB.setMaxTorque(100, percentUnits::pct);
@@ -72,9 +78,8 @@ int main()
   RampL.resetRotation();                  //Reset ramp rotations
   ArmL.resetRotation();
   ArmR.resetRotation();                   //Reset arm rotations
-  wait(500);                             //wait (X) ms
-  Gyro.startCalibration();                //start Gyro Calibration
-  wait(2000);                             //wait (X) ms
+
+
 	pre_auton();                            //Run the pre-autonomous function. 
 	//Set up callbacks for autonomous and driver control periods.
 	Competition.autonomous(auton);

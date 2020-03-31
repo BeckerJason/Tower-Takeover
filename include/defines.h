@@ -11,12 +11,12 @@
 #include <math.h>   
 #include <cmath>
 #include <cstdlib>
+#include <iostream>
+#include <fstream>
 #include "v5.h"
 #include "v5_vcs.h"
 
-#ifndef DEBUG  
-#define DEBUG
-#endif
+
 
 #ifndef ENUMS
 #define ENUMS
@@ -33,7 +33,7 @@ ToggleMode DontDropStack=off;
 ToggleMode ControlIntake=off;
 typedef enum _directional {fwrd=-1,bwrd=1} directional;
 directional ramp = bwrd;
-typedef enum _Alliance {Red=2,Blue=1} Alliance;
+typedef enum _Alliance {Red=-1,Blue=1} Alliance;
 Alliance Color = Blue;  
 
 #endif
@@ -57,6 +57,14 @@ class VisionObject {
           bool    exists[TOTALSNAPSHOTS];
 } PurpleCube,GreenCube,OrangeCube;
 
+class TPositionRecord
+{
+public:
+	float xval;
+	float yval;
+	float angle;
+} initial, final;
+
 bool rampprev = false;
 bool intakeprev = false;
 bool clampprev = false;
@@ -66,14 +74,17 @@ static int MoveReturn=0;
 static int T1 = 0, T3 = 0,T4=0;
 static float avgSpeed = 0;
 static float avgError = 0;
-static float GlobalGyro = 0;
+static float GlobalGyro = 0,GlobalGyroT=0;;
 static float FinalObject=20;
 static float GLOBALP=0.7,GLOBALI=0.000001,GLOBALD=4.1;
 static float objheight;
 static int selection=0;
 int MATCHTIMER=0;
 static bool preautoL;
-double ManualSpeed;    
+double ManualSpeed; 
+    float GyroAdd = 0;
+  float GyroTCheck = 0;
+  float CurrentGyro=0;   
 //float GLOBALP=1.4,GLOBALI=0.0000001,GLOBALD=8.1;
 };
 #endif
@@ -97,8 +108,8 @@ vex::motor LB = vex::motor(vex::PORT15,vex::gearSetting::ratio18_1,false);//back
 vex::motor RF = vex::motor(vex::PORT18,vex::gearSetting::ratio18_1,true);//front right drivetrain motor
 vex::motor RM = vex::motor(vex::PORT17,vex::gearSetting::ratio18_1,true);//middle right drivetrain motor
 vex::motor RB = vex::motor(vex::PORT16,vex::gearSetting::ratio18_1,true);//back right drivetrain motor
-vex::motor RightRoller = vex::motor(vex::PORT3,vex::gearSetting::ratio18_1,false);//front right intake motor
-vex::motor LeftRoller = vex::motor(vex::PORT2,vex::gearSetting::ratio18_1,true);//front left intake motor
+vex::motor RightRoller = vex::motor(vex::PORT6,vex::gearSetting::ratio18_1,false);//front right intake motor
+vex::motor LeftRoller = vex::motor(vex::PORT10,vex::gearSetting::ratio18_1,true);//front left intake motor
 vex::motor ArmL = vex::motor(vex::PORT8,vex::gearSetting::ratio36_1,true);//left arm motor
 vex::motor ArmR = vex::motor(vex::PORT9,vex::gearSetting::ratio36_1,false);//right arm motor
 vex::motor RampL = vex::motor(vex::PORT12,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
@@ -163,6 +174,9 @@ void ToWall(double);                              //ToWall(speed)
 int ArmControl();
 int RampWheels();
 int CubeLoad();
+void Turn(double,double,int);
+void T(double,double,int);
+void GyroChange();
 //void SetDriveTorque(double);
 void Colors(ToggleMode,ToggleMode,ToggleMode);
 

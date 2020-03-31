@@ -2,7 +2,7 @@
 #include "defines.h" 
 using namespace G; 
 #ifndef DEBUG //if DEBUG is defined earlier this section will not compile   //screen 480x272
-
+printscreen.suspend();
  
         
   
@@ -90,5 +90,5 @@ if (select == 1 && Brain.Screen.pressing() == 0) { break; } //else if Touch with
 wait(75);
   }
 wait(500);
-
+printscreen.resume();
 #endif
