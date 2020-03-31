@@ -15,9 +15,9 @@
 /*                                                                             */
 /*                                                                             */
 /*----------------------------------------------------------------------------*/
-//#define SKILL
+#define SKILL
 #ifndef DEBUG  
-//#define DEBUG
+#define DEBUG
 #endif
 #include "defines.h"            //variable and function initialization and definitions
 vex::competition Competition;   //tell robot to use competition file format
@@ -61,12 +61,12 @@ void auton(void) {
 // TurnG(90,25,5000);
 // TurnG(0,25,5000);
 #include "RedBlue3.h"
-/*#ifdef SKILL
+#ifdef SKILL
 #include "Skills.h"
 #endif
 #ifndef SKILL
 #include "RedBlue3.h"   //
-#endif*/
+#endif
 
 //#include "Blue1.h"  //8points working 11/16
 //#include "Blue2.h"    //9 points working, dropping 1 cube 11/16
