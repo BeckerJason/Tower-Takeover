@@ -65,7 +65,8 @@ int TIMER2() {
   while (1) {
     wait(1);
     T3 += 1;
-    T4 += 1;
+
+    if(!bR1&&!bR2) T4 += 1;
   }
   return 0;
 }
@@ -327,7 +328,30 @@ while (fabs(enc(LM)) < fabs((dist * 360.0 / (4.0 * 3.14159))) && T3 < functionti
   }
   StopDrive(X);
 }*/
+int CubeLoad()
+{
+  intake=off;ControlIntake=on;
+  IntakeControler.suspend();
+  rampwheel.suspend();
+  arm.suspend();
+  ArmL.setVelocity(50, velocityUnits::rpm);
+        ArmR.setVelocity(50, velocityUnits::rpm);
+  ArmL.startRotateTo(0, rotationUnits::deg);
+  ArmR.rotateTo(0, rotationUnits::deg);
+  RampWheelL.setVelocity(100, velocityUnits::rpm);
+        RampWheelR.setVelocity(100, velocityUnits::rpm);
+          LeftRoller.setVelocity(100, velocityUnits::rpm);
+        RightRoller.setVelocity(100, velocityUnits::rpm);
+        RampWheelL.startRotateFor(directionType::fwd, -265, rotationUnits::deg);
+        RampWheelR.rotateFor(directionType::fwd, -265, rotationUnits::deg); 
+        RightRoller.startRotateFor(directionType::fwd, -30, rotationUnits::deg);
+        LeftRoller.rotateFor(directionType::fwd, -30, rotationUnits::deg); 
+        
+      IntakeControler.resume();
+  rampwheel.resume();
 
+return 0;
+}
 int IntakeControl()
 {
   while(true)
@@ -342,28 +366,20 @@ int IntakeControl()
     {
   if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){} 
   else if (intake == manual){run(RightRoller, ManualSpeed); run(LeftRoller, ManualSpeed);}
-  else if (intake == off) {if ((bB||bR1) && !G::intakeprev) intake = on;run(RightRoller, 100); run(LeftRoller, 100);} 
+  else if (intake == off) {if ((bB||bR1||ControlIntake==on) && !G::intakeprev) {intake = on;ControlIntake=off;}run(RightRoller, 100); run(LeftRoller, 100);} 
   else if (intake == on) { 
-    if ( (bB && !G::intakeprev)) intake = off;run(RightRoller, 0); run(LeftRoller, 0);}
+    if ( ((bB||ControlIntake==on) && !G::intakeprev)) {intake = off;ControlIntake=off;}run(RightRoller, 0); run(LeftRoller, 0);}
        G::intakeprev = bB||bR1;
     
        //INTAKE
     if (bY==1){run(RightRoller, -80); run(LeftRoller, -80);}
     }
-    wait(20);
+    wait(50);
   }
   return 0;
 }
 
 ///////////////////////////////////////////
-int ArmControl()
-{ArmL.setVelocity(100, percentUnits::pct);
-  while(1)
-  { 
-    wait(100);
-  }
-  return 0;
-}
 ////////////////////////////////////////////////////
 int RampWheels()
 {
@@ -373,7 +389,7 @@ int RampWheels()
   else if (bY==1&&DontLiftStack==0){run(RampWheelL,-100);run(RampWheelR,-100);}
   else if ( (CubeSense.pressing() || CubeSense2.pressing()) &&  DontLiftStack==0){run(RampWheelL,80);run(RampWheelR,80);}
   else {BRAKE(RampWheelL,hold);BRAKE(RampWheelR,hold);}
-wait(20);
+wait(50);
 
   }
 
@@ -381,11 +397,50 @@ wait(20);
   return 0;
 }
 
+int ArmControl()
+{
+  while(1)
+  {
+if (bR1==1&&enc(ArmR)<500)//Chain bar arm control
+    {
+      //intake=off;
+      run(ArmR, 70);
+      run(ArmL,70);
+      T4=0;
+      //ArmL.resetRotation();
+    }
+    else if (bR2==1&&enc(ArmR)>0)
+    {
+      run(ArmR, -70);
+      run(ArmL, -70);
+      T4=0;
+    }
+  else
+    {
+        
+        if (T4>250&&T4<500)
+        {
+          BRAKE(ArmR, hold);
+          ArmL.rotateTo(enc(ArmR), rotationUnits::deg);
+        }
+        else
+        {
+        BRAKE(ArmR, hold);
+        BRAKE(ArmL, hold);
+        }
+    }
+}
+  return 0;
+}
 int RampControl() //Function to be run as a task. this controls the ramp
-{RunRamp=off;
+{
+  RunRamp=off;
   int oldval=ramp;
   RampL.setMaxTorque(100, percentUnits::pct);
   RampR.setMaxTorque(100, percentUnits::pct);
+  BRAKE(RampL,coast);
+  BRAKE(RampR,coast);
+
   RampR.resetRotation();
   RampL.resetRotation();
 
@@ -393,7 +448,7 @@ int RampControl() //Function to be run as a task. this controls the ramp
   {
       
       
-      while(RunRamp==0){wait(10);}
+      while(RunRamp==0){wait(50);}
       //Ramp -1 = up
       run(RightRoller,0);
       run(LeftRoller,0);
@@ -408,12 +463,14 @@ int RampControl() //Function to be run as a task. this controls the ramp
           RampWheelR.startRotateFor(directionType::fwd, -175, rotationUnits::deg); 
         }
         double spd=0;
-        while(enc(RampR)>-460&&bX==0&&ramp==-1) //MOVE UP
+        while(enc(RampR)>-390&&bX==0&&ramp==-1) //MOVE UP
         {
-          spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+65;
+          spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+58;
+          if (bL2)
+          {spd=spd*0.2;}
           run(RampR,-spd);
           run(RampL,-spd);
-          wait(10);
+          wait(20);
         }
         if (ramp==-1){RunRamp=off;}
 
@@ -426,11 +483,16 @@ int RampControl() //Function to be run as a task. this controls the ramp
         {
           run(RampR,40);
           run(RampL,40);
-          wait(10);
+          wait(20);
         }
         if (ramp==1){RunRamp=off;}
-        run(RampR,0);
-        run(RampL,0);
+        BRAKE(RampR,coast);
+        BRAKE(RampL,coast);
+        wait(750);
+        if(enc(RampR)>-100)
+        {RampR.resetRotation();
+  RampL.resetRotation();
+        }
       }
       DontDropStack=off;
       run(RampL,0);run(RampR,0);

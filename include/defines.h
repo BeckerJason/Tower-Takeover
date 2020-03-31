@@ -30,6 +30,7 @@ ToggleMode  GTrack=off;
 ToggleMode ToCube=off;
 ToggleMode DontLiftStack=off;
 ToggleMode DontDropStack=off;
+ToggleMode ControlIntake=off;
 typedef enum _directional {fwrd=-1,bwrd=1} directional;
 directional ramp = bwrd;
 typedef enum _Alliance {Red=2,Blue=1} Alliance;
@@ -98,8 +99,8 @@ vex::motor RM = vex::motor(vex::PORT17,vex::gearSetting::ratio18_1,true);//middl
 vex::motor RB = vex::motor(vex::PORT16,vex::gearSetting::ratio18_1,true);//back right drivetrain motor
 vex::motor RightRoller = vex::motor(vex::PORT3,vex::gearSetting::ratio18_1,false);//front right intake motor
 vex::motor LeftRoller = vex::motor(vex::PORT2,vex::gearSetting::ratio18_1,true);//front left intake motor
-vex::motor ArmL = vex::motor(vex::PORT7,vex::gearSetting::ratio36_1,true);//left arm motor
-vex::motor ArmR = vex::motor(vex::PORT8,vex::gearSetting::ratio36_1,false);//right arm motor
+vex::motor ArmL = vex::motor(vex::PORT8,vex::gearSetting::ratio36_1,true);//left arm motor
+vex::motor ArmR = vex::motor(vex::PORT9,vex::gearSetting::ratio36_1,false);//right arm motor
 vex::motor RampL = vex::motor(vex::PORT12,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
 vex::motor RampR = vex::motor(vex::PORT19,vex::gearSetting::ratio36_1,false);//right Ramp lift motor
 
@@ -161,7 +162,21 @@ int move(float, float,bool,int);       //Move(speed , distance inches, ramp to m
 void ToWall(double);                              //ToWall(speed)
 int ArmControl();
 int RampWheels();
+int CubeLoad();
 //void SetDriveTorque(double);
-
 void Colors(ToggleMode,ToggleMode,ToggleMode);
+
+	vex::task printscreen (PrintScreen); 
+	//vex::task fifth (TurnToCube); 
+	vex::task timer2 (TIMER2);
+	vex::task gyrotrack (GyroTrack);
+  //task starttimer (ENDAUTOTIMER);         //start timer task
+  vex::task arm (ArmControl);
+  vex::task rampcontroller (RampControl);      //start ramp control task
+  vex::task IntakeControler (IntakeControl);
+  //task controllerprint (PrintController);
+  vex::task cubes (TurnToCube);
+  vex::task rampwheel (RampWheels);
+  vex::task cubeload (CubeLoad);
+
 #endif 

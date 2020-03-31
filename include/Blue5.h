@@ -11,10 +11,13 @@ ArmR.setVelocity(100,vex::velocityUnits::pct);
 ArmR.startRotateTo(200,rotationUnits::deg);
 ArmL.rotateTo(200,rotationUnits::deg);
 */
-//RampR.startRotateTo(-160,rotationUnits::deg);
-//RampL.rotateTo(-160,rotationUnits::deg);
-BRAKE(RampL,coast);
-BRAKE(RampR,coast); 
+  //RampR.startRotateTo(-290,rotationUnits::deg); 
+  //RampL.rotateTo(-290,rotationUnits::deg);
+  //run(RampR,40);
+  //run(RampL,40);
+  //wait(300);
+  BRAKE(RampL,coast);
+  BRAKE(RampR,coast);
 DontLiftStack=off;
 //ArmR.startRotateTo(0,rotationUnits::deg);
 //ArmL.startRotateTo(0,rotationUnits::deg);

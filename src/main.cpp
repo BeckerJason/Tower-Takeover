@@ -34,21 +34,15 @@ void pre_auton(void) {
 void auton(void) { 
   preautoL=false;                         //reset pre auto latch
   G::MATCHTIMER=0;                        //reset Match timer
-  task starttimer (ENDAUTOTIMER);         //start timer task
-  task rampcontroller (RampControl);      //start Ramp control task
-  task IntakeControler (IntakeControl);
-  task controllerprint (PrintController); //start print to task
-  task cubes (TurnToCube);
-  task AC (ArmControl);
-    task rampwheel (RampWheels);
 //#include "autonincludes.h"                //include auto code
 //#include "RedBlue1.h"
 //#include "Blue1.h"  //8points working 11/16
 //#include "Blue2.h"    //9 points working, dropping 1 cube 11/16
 //#include "Blue3.h"  //12 points 44 seconds working 11/16
 //#include "Blue4.h"  //12 points 37 seconds working 11/16
-#include "Blue5.h"
+//#include "Blue5.h"
 //#include "Red1.h"
+#include "Red2.h"
 }
 
 //////////////////////
@@ -57,13 +51,6 @@ void auton(void) {
 void usercontrol(void) { 
   preautoL=false;                         //reset pre auto latch
   MATCHTIMER=0;                           //reset timer
-  task starttimer (ENDAUTOTIMER);         //start timer task
-  task rampcontroller (RampControl);      //start ramp control task
-  task IntakeControler (IntakeControl);
-  task controllerprint (PrintController);
-  task cubes (TurnToCube);
-  task rampwheel (RampWheels);
-  task AC (ArmControl);
 #include "usercontrol.h"
 } 
 ////////////////////////////////////
@@ -71,6 +58,7 @@ void usercontrol(void) {
 // ----- MAIN -----//
 int main() 
 {
+  
   LF.setMaxTorque(100, percentUnits::pct);
   RF.setMaxTorque(100, percentUnits::pct);
   LB.setMaxTorque(100, percentUnits::pct);
@@ -84,18 +72,46 @@ int main()
   RampL.resetRotation();                  //Reset ramp rotations
   ArmL.resetRotation();
   ArmR.resetRotation();                   //Reset arm rotations
-  wait(1000);                             //wait (X) ms
+  wait(500);                             //wait (X) ms
   Gyro.startCalibration();                //start Gyro Calibration
-  wait(3000);                             //wait (X) ms
+  wait(2000);                             //wait (X) ms
 	pre_auton();                            //Run the pre-autonomous function. 
 	//Set up callbacks for autonomous and driver control periods.
 	Competition.autonomous(auton);
 	Competition.drivercontrol(usercontrol);
-
+  vex::task rampcontroller (RampControl);      //start ramp control task
 	//Prevent main from exiting with an infinite loop.                        
 	while (1) {
 		wait(100);//Sleep the task for a short amount of time to prevent wasted resources.
-	}
+	if (bL1&&bL2&&bR1&&bR2)
+  {
+    arm.suspend();
+    rampcontroller.suspend();
+    IntakeControler.suspend();
+    timer2.suspend();
+    gyrotrack.suspend();
+    rampwheel.suspend();
+    printscreen.suspend();
+      intake= off;
+  RunRamp=off;
+  CubeTrack =off;
+   OTrack=off;
+   PTrack=off;
+   GTrack=off;
+  ToCube=off;
+  DontLiftStack=off;
+  DontDropStack=off;
+ramp = bwrd;
+    wait(500);
+    arm.resume();
+    rampcontroller.resume();
+    IntakeControler.resume();
+    timer2.resume();
+    gyrotrack.resume();
+    rampwheel.resume();
+    printscreen.resume();
+  }
+  }
   return 0;
 }
 //////////////////////////////////////////
