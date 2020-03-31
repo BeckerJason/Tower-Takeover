@@ -22,9 +22,43 @@ int GyroTrack() {
   }
   return 0;
 }
-
+/*void run(vex::motor motorname, double speed) {
+  if (speed != 0) {
+    motorname.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
+  } else {
+    motorname.stop(vex::brakeType::brake);
+  }
+}*/
+void runRPM(vex::motor motorname, double speed) {
+  if (speed != 0) {
+    motorname.spin(vex::directionType::fwd, speed, vex::velocityUnits::rpm);
+  } else {
+    motorname.stop(vex::brakeType::brake);
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+void StopArm(vex::brakeType brake) {
+  BRAKE(ArmL, brake);
+  BRAKE(ArmR, brake);
+} 
+void StopRamp(vex::brakeType brake) {
+  BRAKE(RampL, brake);
+  BRAKE(RampR, brake);
+}
+void StopDrive(vex::brakeType brake) {
+  BRAKE(RF, brake);
+  BRAKE(RM, brake);
+  BRAKE(RB, brake);
+  BRAKE(LF, brake);
+  BRAKE(LM, brake);
+  BRAKE(LB, brake);
+}
 ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+void AutoStack()
+{
+}
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 /*float enc(vex::motor motorname) {
@@ -38,7 +72,6 @@ int PrintScreen() {
     Brain.Screen.printAt(100, 40, "P: H:%d    Y:%d",
                          Vision.objects[FinalObject].height,
                          Vision.objects[FinalObject].centerY);
-    Brain.Screen.printAt(100, 80, "green %X ", GreenCube.centerX[0]);
     Brain.Screen.printAt(340, 140, "MT %d ", MATCHTIMER);
     Brain.Screen.printAt(340, 160, "Ramp %d ", ramp);
     Brain.Screen.printAt(340, 180, "RampEnc %f ", enc(RampR));
@@ -185,16 +218,14 @@ void pidTurn(float globalDegrees, float pid_Kp, float pid_Ki, float pid_Kd,
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-int Move(float speed, float dist, bool rampspeed, vex::brakeType brake,int functiontimer) {
+int Move(float speed, float dist, bool rampspeed, vex::brakeType X) {
 
   float dir;
   if (dist < 0) {
     dir = -1;
-  } 
-  else 
-    {
-      dir = 1;
-    }
+  } else {
+    dir = 1;
+  }
   float Tdir = dir;
   LF.resetRotation();
   RF.resetRotation();
@@ -204,7 +235,7 @@ int Move(float speed, float dist, bool rampspeed, vex::brakeType brake,int funct
   if (rampspeed) {
     counter = 50;
   }
-  while (fabs(enc(LF)) < abs((dist * 360.0 / (4.0 * 3.14159))) && T3 < functiontimer) {
+  while (fabs(enc(LF)) < abs((dist * 360.0 / (4.0 * 3.14159))) && T3 < 4000) {
 
     float Roffset = 1.0;
     if (fabs(enc(LF)) < fabs((enc(RF)) + 2)) {
@@ -227,10 +258,11 @@ int Move(float speed, float dist, bool rampspeed, vex::brakeType brake,int funct
     run(LB, speed * dir);
     wait(12);
   }
-  StopDrive(brake);
+  StopDrive(X);
   return 1;
 
 }
+
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 /*void ToWall(double vel) {
@@ -286,35 +318,7 @@ int Move(float speed, float dist, bool rampspeed, vex::brakeType brake,int funct
   StopDrive(X);
 }*/
 
-//O G P
-void Colors(ToggleMode O, ToggleMode Gr,ToggleMode P)//sets colors for tracking
-{
-OTrack=O;
-GTrack=Gr;
-PTrack=P;
-}
-
-int IntakeControl()
-{
-  while(true)
-  {
-    while(AutoRunning)
-    {
-    run(RightRoller, intake*100); run(LeftRoller, intake*100);
-    wait(50);
-    }
-  if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){} 
-  else if (intake == off) {if (bB && !G::intakeprev) intake = on;run(RightRoller, 100); run(LeftRoller, 100);} 
-  else if (intake == on) { 
-
-    if ( bB && !G::intakeprev) intake = off;run(RightRoller, 0); run(LeftRoller, 0);}
-       G::intakeprev = bB;
-       //INTAKE
-    if (bY==1){run(RightRoller, -80); run(LeftRoller, -80);}
-    wait(20);
-  }
-  return 0;
-}
+void SwapColor() {}
 
 int RampControl() //Function to be run as a task. this controls the ramp
 {RunRamp=off;
@@ -323,14 +327,7 @@ int RampControl() //Function to be run as a task. this controls the ramp
   RampR.setMaxTorque(100, percentUnits::pct);
   RampR.resetRotation();
   RampL.resetRotation();
-  if (!bLeft)
-  {
-  //RampR.startRotateTo(-140,rotationUnits::deg);
-  //RampL.rotateTo(-140,rotationUnits::deg);
-  RampR.resetRotation();
-  RampL.resetRotation();  
-  }
-  
+
   while(1)
   {
       
@@ -350,27 +347,27 @@ int RampControl() //Function to be run as a task. this controls the ramp
           RampWheelR.startRotateFor(directionType::fwd, -175, rotationUnits::deg); 
         }
         double spd=0;
-        while(enc(RampR)>-270&&bX==0&&ramp==-1) //MOVE UP
+        while(enc(RampR)>-600&&bX==0&&ramp==-1) //MOVE UP
         {
-          spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+47;
+          spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+65;
           run(RampR,-spd);
           run(RampL,-spd);
           wait(10);
         }
-        if (ramp==-1){RunRamp=off;Piston.set(0);}//open
+        if (ramp==-1){RunRamp=off;}
 
-        BRAKE(RampR,hold);
-        BRAKE(RampL,hold); 
+        run(RampR,0);
+        run(RampL,0); 
       }
       else 
       {
-        while(enc(RampR)<-20&&bX==0&&ramp==1)
+        while(enc(RampR)<-50&&bX==0&&ramp==1)
         {
           run(RampR,40);
           run(RampL,40);
           wait(10);
         }
-        if (ramp==1){RunRamp=off;Piston.set(on);}
+        if (ramp==1){RunRamp=off;}
         run(RampR,0);
         run(RampL,0);
       }
@@ -378,141 +375,4 @@ int RampControl() //Function to be run as a task. this controls the ramp
       run(RampL,0);run(RampR,0);
   }
   return 0;
-}
-
-int TurnToCube()
-{
-  int offCounter=0;
-  while (1)
-  {
-    if (CubeTrack==on||ToCube==on)
-    {
-        Vision.takeSnapshot(1,TOTALSNAPSHOTS);//take picture of orange cubes
-        if (OTrack==off){OrangeCube.exists[0]=0;}
-        else
-        {
-          for (int i=0;i<TOTALSNAPSHOTS;i++)
-          {
-            OrangeCube.id[i]=Vision.objects[i].id;
-            OrangeCube.originX[i]=Vision.objects[i].originX;
-            OrangeCube.originY[i]=Vision.objects[i].originY;
-            OrangeCube.centerX[i]=Vision.objects[i].centerX;
-            OrangeCube.centerY[i]=Vision.objects[i].centerY;
-            OrangeCube.width[i]=Vision.objects[i].width;
-            OrangeCube.height[i]=Vision.objects[i].height;
-            OrangeCube.angle[i]=Vision.objects[i].angle;
-            OrangeCube.exists[i]=Vision.objects[i].exists;
-          }
-        }
-        if (PTrack==off){PurpleCube.exists[0]=0;}
-        else
-        {
-          Vision.takeSnapshot(2,TOTALSNAPSHOTS);//take picture of purple cubes
-          for (int i=0;i<TOTALSNAPSHOTS;i++)
-          {
-            PurpleCube.id[i]=Vision.objects[i].id;
-            PurpleCube.originX[i]=Vision.objects[i].originX;
-            PurpleCube.originY[i]=Vision.objects[i].originY;
-            PurpleCube.centerX[i]=Vision.objects[i].centerX;
-            PurpleCube.centerY[i]=Vision.objects[i].centerY;
-            PurpleCube.width[i]=Vision.objects[i].width;
-            PurpleCube.height[i]=Vision.objects[i].height;
-            PurpleCube.angle[i]=Vision.objects[i].angle;
-            PurpleCube.exists[i]=Vision.objects[i].exists;
-          }
-        }
-        if(GTrack==off){GreenCube.exists[0]=0;}
-        else
-        {
-          Vision.takeSnapshot(3,TOTALSNAPSHOTS);//take picture of green cubes
-          for (int i=0;i<TOTALSNAPSHOTS;i++)
-          {
-            GreenCube.id[i]=Vision.objects[i].id;
-            GreenCube.originX[i]=Vision.objects[i].originX;
-            GreenCube.originY[i]=Vision.objects[i].originY;
-            GreenCube.centerX[i]=Vision.objects[i].centerX;
-            GreenCube.centerY[i]=Vision.objects[i].centerY;
-            GreenCube.width[i]=Vision.objects[i].width;
-            GreenCube.height[i]=Vision.objects[i].height;
-            GreenCube.angle[i]=Vision.objects[i].angle;
-            GreenCube.exists[i]=Vision.objects[i].exists;
-          }
-        }
-      THeight=0;
-      TWidth=0;
-      TurnDiff=0;
-      for (int i=0;OrangeCube.exists[i];i++)
-      {
-        if(OrangeCube.height[i]>THeight)
-        { 
-          THeight=OrangeCube.height[i];
-          TWidth=OrangeCube.width[i];
-          TurnDiff=GlobalCubeOffset-OrangeCube.centerX[i];
-        }
-      }
-      for (int i=0;PurpleCube.exists[i];i++)
-      {
-        if(PurpleCube.height[i]>THeight)
-        {
-          THeight=PurpleCube.height[i];
-          TWidth=PurpleCube.width[i];
-          TurnDiff=GlobalCubeOffset-PurpleCube.centerX[i];
-        }
-      }
-      for (int i=0;GreenCube.exists[i];i++)
-      {
-        if(GreenCube.height[i]*GreenCube.width[i]>THeight*TWidth)
-        {
-          THeight=GreenCube.height[i];
-          TWidth=GreenCube.width[i];
-          TurnDiff=GlobalCubeOffset-GreenCube.centerX[i];
-        }
-      }
-
-      if(TurnDiff<-15)//right
-      {TurnDir=-1;}
-      else if (TurnDiff>15)//left
-      {TurnDir=1;}
-      if(abs(TurnDiff)<50)
-      {CubeTrack=off;ToCube=on;} //Stop Turning if within a range
-      if (!GreenCube.exists[0]&&!PurpleCube.exists[0]&&!OrangeCube.exists[0])
-      {offCounter++;}
-      else if (offCounter>0)
-      {offCounter--;}
-      if (offCounter==5)
-      {CubeTrack=off;ToCube=off;offCounter=0;}
-      
-
-      if(CubeTrack==on)
-      {
-      leftDrive((0.0005*pow(TurnDiff,2)*+8*pow(10,-16)*TurnDiff+10.8019)*-TurnDir);
-      rightDrive((0.0005*pow(TurnDiff,2)*+8*pow(10,-16)*TurnDiff+10.8019)*TurnDir);
-      }
-      else if (ToCube==on)
-      {
-        if (abs(TurnDiff>15))
-        {
-        leftDrive(40+(0.0005*pow(TurnDiff,2)*+8*pow(10,-16)*TurnDiff+10.8019)*-TurnDir);
-        rightDrive(40+(0.0005*pow(TurnDiff,2)*+8*pow(10,-16)*TurnDiff+10.8019)*TurnDir);
-        }
-        else
-        {
-          leftDrive(40);
-          rightDrive(40);
-        }
-        if(CubeSense.value(percentUnits::pct)<68 || CubeSense2.value(percentUnits::pct)<68)
-        {ToCube=off;CubeTrack=off;StopDrive(hold); wait(200);}
-        wait(10);
-      }
-      else{StopDrive(hold);}
-    }
-    
-
-
-
-
-
-    wait(15);
-  }
-  return 0;  
 }

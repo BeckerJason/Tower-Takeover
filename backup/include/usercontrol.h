@@ -1,3 +1,5 @@
+#include "C:/Program Files (x86)/VEX Robotics/VEXcode/sdk/vexv5/include/v5_apitypes.h"
+#include "C:/Program Files (x86)/VEX Robotics/VEXcode/sdk/vexv5/include/vex_global.h"
 #include "defines.h"
 using namespace G;
 using namespace std;
@@ -16,26 +18,21 @@ using namespace vex;
 #endif 
 AutoRunning = 0;
 // SnapToCube = off;
-GlobalCubeOffset = 160;
+GlobalFlagOffset = 160;
 MATCHTIMER = 0;
-OTrack=on;
-GTrack=off;
-PTrack=on;
-while (1) 
-{
-  if (bUp==1)
-  { StopDrive(hold);}
-  else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10)) {
-      CubeTrack=off;
-      ToCube=off;
+while (1) {
+  if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10)) {
+    
       run(LF, (ch3 + ch1/2)); //(Axis3+Axis4)/2
       run(LM, (ch3 + ch1/2));
       run(LB, (ch3 + ch1/2)); //(Axis3+Axis4)/2
       run(RF, (ch3 - ch1/2)); //(Axis3-Axis4)/2
       run(RM, (ch3 - ch1/2));
       run(RB, (ch3 - ch1/2)); //(Axis3-Axis4)/2
-  }
-   else if (AutoRunning == 0&&CubeTrack==off&&ToCube==off) {
+
+       
+    
+  } else if (AutoRunning == 0) {
     StopDrive(brake);
   } else {
   } 
@@ -87,7 +84,7 @@ else
 
   if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){}
   else if (bY==1&&bL1==0){run(RampWheelL,-100);run(RampWheelR,-100);}
-  else if ( (CubeSense.value(percentUnits::pct)<70 || CubeSense2.value(percentUnits::pct)<70) &&  bL1==0){run(RampWheelL,100);run(RampWheelR,100);}
+  else if ( (CubeSense.value(percentUnits::pct)<68 || CubeSense2.value(percentUnits::pct)<68) &&  bL1==0){run(RampWheelL,100);run(RampWheelR,100);}
   else {BRAKE(RampWheelL,hold);BRAKE(RampWheelR,hold);}
   
  if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){} 
@@ -99,6 +96,5 @@ else
        //INTAKE
 if (bY==1){run(RightRoller, -80); run(LeftRoller, -80);}
   wait(20);
-  if (bL2==1){CubeTrack=on;}
 
 }
