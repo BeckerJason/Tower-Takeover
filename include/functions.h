@@ -24,9 +24,8 @@ int GyroTrack() {
 	// rampwheel.suspend();
 	// printscreen.suspend();
 	wait(3500);                             //wait (X) ms
-	Inertial.calibrate();                //start Gyro Calibration
-	wait(2000);
-  //wait (X) ms
+	Gyro.startCalibration();                //start Gyro Calibration
+	wait(2000);                             //wait (X) ms
 // 	arm.resume();
 // 	rampcontroller.resume();
 // 	IntakeController.resume();
@@ -36,7 +35,7 @@ int GyroTrack() {
 // 	printscreen.resume();
 // #endif
 	while (1) {
-		CurrentGyro=Inertial.heading()*10;
+		CurrentGyro=Gyro.value(vex::rotationUnits::raw);
 		//if going from 3600 to 0
 		if(GyroTCheck>2500&&GyroTCheck<=3600&& CurrentGyro<1000)
 		{GyroAdd=3600-GyroTCheck+ CurrentGyro;}
@@ -53,8 +52,8 @@ int GyroTrack() {
 		else {GyroAdd = GyroTCheck-CurrentGyro;}
 		GyroTCheck = CurrentGyro;
 		if (GyroAdd>0)
-		{GlobalGyro += GyroAdd;GlobalGyroT += GyroAdd;}
-		else{GlobalGyro+=GyroAdd;GlobalGyroT+=GyroAdd;}
+		{GlobalGyro += GyroAdd*0.93023;GlobalGyroT += GyroAdd*0.93023;}
+		else{GlobalGyro+=GyroAdd*0.94736;GlobalGyroT+=GyroAdd*0.94736;}
 
 		/*file.open("DATA.csv",ios::out | ios::app | ios::ate );
 		file<<counter<<","<< Gyro.value(vex::rotationUnits::raw)<<","<<GlobalGyro<<endl;
@@ -213,6 +212,8 @@ void T(double degrees, double speed, int TimeOut)//, int Timeout) similar to tur
 		{
 			val=fabs((GlobalGyroT-degrees)/(TGyro-degrees));
 			turnspeed=speed*(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419);
+
+
 
 			////////////////////////////////////FAILSAFE TIMEOUT
 			if(T3 > TimeOut  && TimeOut > 0){StopDrive(hold);return;}

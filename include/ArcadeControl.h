@@ -37,6 +37,38 @@ RampL.rotateTo(-140,rotationUnits::deg);
 RampR.resetRotation();
 RampL.resetRotation();
 }*/
+intake=off;
+DontLiftStack=off;
+ rampwheel.suspend();
+RampWheelL.resetRotation();
+ RampWheelR.resetRotation();
+rightDrive(-10);
+leftDrive(-10);
+arm.suspend();
+     ArmL.setVelocity(100,vex::velocityUnits::pct);
+     ArmR.setVelocity(100,vex::velocityUnits::pct);
+     
+     ArmR.startRotateTo(300,rotationUnits::deg);
+     ArmL.rotateTo(300,rotationUnits::deg);
+     ManualSpeed=-100;
+     intake=manual;
+     ArmR.startRotateTo(600,rotationUnits::deg);
+     ArmL.rotateTo(600,rotationUnits::deg);
+     intake=on;
+     RampWheelL.setVelocity(60,vex::velocityUnits::pct);
+     RampWheelR.setVelocity(60,vex::velocityUnits::pct);
+     RampWheelR.startRotateTo(-150,rotationUnits::deg);
+     RampWheelL.startRotateTo(-150,rotationUnits::deg);
+     //ArmL.setVelocity(50,vex::velocityUnits::pct);
+     //ArmR.setVelocity(50,vex::velocityUnits::pct);
+     ArmR.startRotateTo(0,rotationUnits::deg);
+     ArmL.rotateTo(0,rotationUnits::deg);
+     arm.suspend();
+     StopArm(hold);
+     DontLiftStack=off;
+     rightDrive(0);
+leftDrive(0);
+intake=on;
 
 while (1) 
 {

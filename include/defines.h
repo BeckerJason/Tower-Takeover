@@ -79,10 +79,7 @@ static bool preautoL;
 double ManualSpeed;   
 static double spd;
 double FSpeed=0;
-double TSpeed=0;
-float GyroAdd=0;
-float GyroTCheck=0;
-float CurrentGyro=0; 
+double TSpeed=0; 
 //float GLOBALP=1.4,GLOBALI=0.0000001,GLOBALD=8.1;
 };
 #endif
@@ -94,8 +91,7 @@ float CurrentGyro=0;
 vex::brain Brain;
 vex::controller   Controller = vex::controller(vex::controllerType::primary);
 vex::digital_out Piston=vex::digital_out(Brain.ThreeWirePort.A);
-//vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.A);
-vex::inertial Inertial(vex::PORT7);
+vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.A);
 vex::limit CubeSense = vex::limit(Brain.ThreeWirePort.F);
 vex::limit CubeSense2 = vex::limit(Brain.ThreeWirePort.C);
 vex::motor RampWheelR = vex::motor(vex::PORT6,vex::gearSetting::ratio36_1,false);//right Ramp wheel motor
@@ -107,7 +103,7 @@ vex::motor RF = vex::motor(vex::PORT8,vex::gearSetting::ratio18_1,true);//front 
 vex::motor RM = vex::motor(vex::PORT9,vex::gearSetting::ratio18_1,true);//middle right drivetrain motor
 vex::motor RB = vex::motor(vex::PORT10,vex::gearSetting::ratio18_1,true);//back right drivetrain motor
 vex::motor RightRoller = vex::motor(vex::PORT4,vex::gearSetting::ratio18_1,false);//front right intake motor
-vex::motor LeftRoller = vex::motor(vex::PORT15,vex::gearSetting::ratio18_1,true);//front left intake motor
+vex::motor LeftRoller = vex::motor(vex::PORT14,vex::gearSetting::ratio18_1,true);//front left intake motor
 vex::motor ArmL = vex::motor(vex::PORT16,vex::gearSetting::ratio36_1,true);//left arm motor
 vex::motor ArmR = vex::motor(vex::PORT3,vex::gearSetting::ratio36_1,false);//right arm motor
 vex::motor RampL = vex::motor(vex::PORT11,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
@@ -182,9 +178,6 @@ void ToWall(double);                              //ToWall(speed)
 int ArmControl();
 int RampWheels();
 int CubeLoad();
-void Turn(double,double,int);
-void T(double,double,int);
-void GyroChange();
 //void SetDriveTorque(double);
 void Colors(ToggleMode,ToggleMode,ToggleMode);
 
@@ -194,10 +187,10 @@ void Colors(ToggleMode,ToggleMode,ToggleMode);
 
 #ifndef TASKS
 #define TASKS
-	vex::task gyrotrack (GyroTrack);
-  vex::task printscreen (PrintScreen); 
+	vex::task printscreen (PrintScreen); 
 	//vex::task fifth (TurnToCube); 
 	vex::task timer2 (TIMER2);
+	vex::task gyrotrack (GyroTrack);
   //task starttimer (ENDAUTOTIMER);         //start timer task
   vex::task arm (ArmControl);
   vex::task rampcontroller (RampControl);      //start ramp control task
