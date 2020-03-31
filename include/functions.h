@@ -145,6 +145,39 @@ void leftDrive(int power) {
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////TURN BASED ON GYRO DEGREES EXAMPLE // TurnDegree(-90, 100,1000);//THIS TURNS LEFT 90 DEGREES AT 100 POWER
+int TurnG(double degree, double speed, int TimeOut)
+{ 
+  double slack=0.5;// degrees of slack left and right
+  double dir=1;
+  double turnspeed=speed;
+	degree*=10;
+  slack*=10;
+  double initgyro=GlobalGyro;
+  double val=1;
+  while(GlobalGyro>degree+slack||GlobalGyro<degree-slack)
+  {
+    while(GlobalGyro>degree+slack||GlobalGyro<degree-slack)
+    {
+      val=fabs(GlobalGyro/(fabs(initgyro+.01)-fabs(GlobalGyro)));
+      turnspeed=speed*(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419);
+      if(GlobalGyro>degree) //need to go rigt
+      {
+        leftDrive(turnspeed);
+        rightDrive(-turnspeed);//go right
+      }
+      else
+      {
+        leftDrive(-turnspeed);
+        rightDrive(turnspeed);//go left
+      }
+     wait(10); 
+    }
+    StopDrive(brake);
+    wait(150);
+  }
+  return 1;
+}
+
 void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 {
 	double dir=1;
@@ -575,20 +608,23 @@ int AutoStack()
   while(RunRamp==on){wait(20);}
   while(bLeft){wait(10);}
   wait(200);
-  ArmL.setVelocity(50,vex::velocityUnits::pct);
-  ArmR.setVelocity(50,vex::velocityUnits::pct);
-  ArmL.startRotateTo(90,rotationUnits::deg);
-  ArmR.startRotateTo(90,rotationUnits::deg);
-  Move(30,-4,1,coast,2000);
+  //ArmL.setVelocity(50,vex::velocityUnits::pct);
+  //ArmR.setVelocity(50,vex::velocityUnits::pct);
+  //ArmL.startRotateTo(90,rotationUnits::deg);
+  //ArmR.startRotateTo(90,rotationUnits::deg);
+  ManualSpeed=-35;
+  intake=manual;
+  MoveG(40,-8,1,1000,coast,3000);
   ramp=bwrd;
   RunRamp=on;
-  Move(40,-7.8,1,brake,3000);
+  //MoveG(40,-7.8,1,1000,brake,3000);
+  MoveG(40,-12.8,1,1000,brake,3000);
   ArmR.startRotateTo(0,rotationUnits::deg);
   ArmL.startRotateTo(0,rotationUnits::deg);
-  wait(1000);
+  if (AutoRunning==1){wait(1000);}
   AutoRunning=0;
   arm.resume();
-  
+  intake=off;
   return 0;
 }
 ///////////////////////////////////////////
@@ -650,6 +686,7 @@ int ArmControl()
 	}
 	return 0;
 }
+std::ofstream file;
 int RampControl() //Function to be run as a task. this controls the ramp
 { 
 	RunRamp=off;
@@ -658,7 +695,7 @@ int RampControl() //Function to be run as a task. this controls the ramp
 	RampR.setMaxTorque(100, percentUnits::pct);
 	BRAKE(RampL,coast);
 	BRAKE(RampR,coast);
-
+  double speedmult=0;
 
 
 	while(1)
@@ -670,6 +707,7 @@ int RampControl() //Function to be run as a task. this controls the ramp
 		run(RightRoller,0);
 		run(LeftRoller,0);
 		//if (enc(RampR)>0 /*RampLimitBottom.pressing()==1*/){RampR.resetRotation();}
+    speedmult=0;
 		if (ramp==-1)//ramp up limit  //RAMP UP
 		{
 			if (DontDropStack==0)
@@ -679,17 +717,22 @@ int RampControl() //Function to be run as a task. this controls the ramp
 				RampWheelL.startRotateFor(directionType::fwd, -175, rotationUnits::deg);
 				RampWheelR.startRotateFor(directionType::fwd, -175, rotationUnits::deg);
 			}
-			double spd=0;
+			double spd=.3;
 			while(enc(RampR)>-440&&bLeft==0&&ramp==-1) //MOVE UP
 			{
 				//spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+64;
-        spd = 75 - .85/5*(enc(-1*RampR));
-        if (spd <= 20){spd=15;}
+        spd = 75 - .85/4.5*(((enc(-1*RampR)+enc(-1*RampR)))/2);
+        spd*=speedmult;
+        //file.open("DATA19.csv",ios::out | ios::app | ios::ate );
+        if (spd <= 15&&speedmult>=1){spd=15;}
 				if (bL2)
 				{spd=spd*0.2;}
 				run(RampR,-spd);
 				run(RampL,-spd);
 				wait(20);
+        //file<<abs(enc(RampR))<<","<< spd<<","<<abs(RampR.velocity(percentUnits::pct))<<","<<abs(RampL.velocity(percentUnits::pct))<<endl;
+		    //file.close();
+        if(speedmult<1){speedmult+=.02;}
 			}
 			if (ramp==-1){RunRamp=off;}
 
