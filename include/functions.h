@@ -68,6 +68,7 @@ int GyroTrack() {
 	return 0;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 /*float enc(vex::motor motorname) {
@@ -155,7 +156,7 @@ int TurnG(double degree, double speed, int TimeOut)
   double initgyro=GlobalGyro;
   double val=1;
   T3=0;
-  while((GlobalGyro>degree+slack||GlobalGyro<degree-slack)&&T3<TimeOut) //wihle loop written twice to correct for overshoot
+  while((GlobalGyro>degree+slack||GlobalGyro<degree-slack)&&T3<TimeOut) //while loop written twice to correct for overshoot
   {
     while((GlobalGyro>degree+slack||GlobalGyro<degree-slack)&&T3<TimeOut)
     {
@@ -191,8 +192,8 @@ void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 	else if (degrees < 0){dir=1;}
 	//float ticks = abs(degrees*7.7);
 	T3=0;
-	LM.resetRotation();
-	RM.resetRotation();
+	LM.resetRotation();       //reset Rotation of LM
+	RM.resetRotation();       //reset Rotation of RM
 	double turnspeed=speed;
 	degrees*=10;
 	double val=1;
@@ -237,8 +238,8 @@ void T(double degrees, double speed, int TimeOut)//, int Timeout) similar to tur
 
 	//float ticks = abs(degrees*7.7);
 	T3=0;
-	LM.resetRotation();
-	RM.resetRotation();
+	LM.resetRotation();       //reset Rotation of LM
+	RM.resetRotation();       //reset Rotation of RM
 	double turnspeed;
 	double TGyro;
 	for(int i=0;i<1;i++)
@@ -381,46 +382,55 @@ int timeout) {
 	StopDrive(brake);
 }
 ///////////////////////////////////////////////////////////////////////////
-int moveg(float speed, float dist, bool rampspeed, double gyroheading, int functiontimer)///Setting gyroheading to 10000 keeps robot in direction its facing 
+int MoveG(float speed, float dist, bool rampspeed, double gyroheading, int functiontimer)///Setting gyroheading to 10000 keeps robot in direction its facing 
 {
-  gyroheading*=10;
-	dist=dist*.95;
-	float dir;
-	if (dist < 0) {
-		dir = -1;
-		} else {
-		dir = 1;
-	}
-	float Tdir = dir;
-	LM.resetRotation();
-	RM.resetRotation();
-	wait(20);
-	T3 = 0;
-	double counter = 100;
-	if (rampspeed) {
-		counter = 50;
+  gyroheading*=10; //bring gyro heading into the same raw format of gyro (out of 3600);
+	dist=dist*.95; //Correction factor for size of the wheels
+	float dir;      //direction variable   forward:1  backward:-1 
+	if (dist < 0) //if dist<0 go backward
+  {dir = -1;}   //set dir var for backward
+  else 
+  {dir = 1;}    //set dir variable for forward
+	float Tdir = dir;   //Tdir holds original value of dir. dir will be used to hold direction and speed ramping factor
+	LM.resetRotation();       //reset Rotation of LM   
+	RM.resetRotation();       //reset Rotation of RM
+	wait(20);                 //wait, though it may not be needed, to make sure LM & RM reset
+	T3 = 0;                   //reset timer variable 
+	double counter = 1.00;     //create timer variable and start it at 1.00 which will equate to 100%
+	if (rampspeed)            //if rampspeed==1
+  {
+    if (fabs(RM.velocity(velocityUnits::pct))!=speed&&speed!=0) //if robot moving faster before function call than speed called in function
+    {counter=fabs(RM.velocity(velocityUnits::pct))/speed;}// start move speed at current speed and speed up/down to intended speed later 
+    else if(fabs(RM.velocity(velocityUnits::pct))<speed+1&&fabs(RM.velocity(velocityUnits::pct))>speed-1)     //else if the robot is moving at exactly the intended speed
+    {counter=1.00;} //100% speed
+    else{counter = 0.50;} //in case of error else start at 50%
 	}
 
-  double TGyro=0;
-  if(gyroheading==10000){TGyro=GlobalGyro;}
-  else {TGyro=gyroheading;}
-	while (fabs(enc(LM)) < fabs((dist * 360.0 / (4.0 * 3.14159))) && T3 < functiontimer&&!bLeft&&!bDown) {
-  
-		float Roffset = 1.0;
-		if (GlobalGyro>TGyro+5) {
-			Roffset = 1-dir*0.1;
-			}
-       else if (GlobalGyro<TGyro-5) {
-			Roffset = 1+dir*0.1;
-			}
-       else {
-		}
-		if (counter < 100) {
-			dir = Tdir * counter * 0.01;
-			counter += .75;
-			} else {
-			dir = Tdir;
-		}
+  double TGyro=0;         //create a variable to hold intended gyro heading
+  if(gyroheading/10==1000){TGyro=GlobalGyro;} //if gyroheading is 1000 when called then keep going in current direction
+  else {TGyro=gyroheading;}                   //else use gyroheading as direction to move
+	while (fabs(enc(LM)) < fabs((dist * 360.0 / (4.0 * 3.14159))) && T3 < functiontimer&&!bLeft&&!bDown) //while distance not met, timer not met, and kill button not pressed
+  { 
+    float Roffset = 1.0;  //Roffset used to keep bot straight
+    if (GlobalGyro>TGyro+5)   //if gyro too far left
+    {Roffset = 1-dir*0.1;}    //slow right side
+    else if (GlobalGyro<TGyro-5)  //if gyro too far right
+    {Roffset = 1+dir*0.1;}      //speed up right side
+    else{}          
+
+    if (counter < 0.99)      // if counter<0.99 (started function with lower than intended speed) 
+    {	                     // we use decimals for increasing counter and we cannot expect that the decimals we choose will end at exactly 1.00
+      dir = Tdir * counter; //set dir  
+      counter += .015;             //add to counter
+    }
+    else if(counter>1.01)  // if counter>1.01 (started function with higher than intended speed)
+    {
+      dir = Tdir * counter; //set dir
+      counter -= .015;           //subtract from counter
+    }
+    else 
+    {dir = Tdir;}         //keep speed at 1.00
+
 		run(RM, speed * Roffset * dir);
 		run(LM, speed * dir);
 		run(RF, speed * Roffset * dir);
@@ -430,7 +440,6 @@ int moveg(float speed, float dist, bool rampspeed, double gyroheading, int funct
 		wait(12);
 	}
 	return 1;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -444,8 +453,8 @@ int move(float speed, float dist, bool rampspeed,int functiontimer) {
 		dir = 1;
 	}
 	float Tdir = dir;
-	LM.resetRotation();
-	RM.resetRotation();
+	LM.resetRotation();       //reset Rotation of LM
+	RM.resetRotation();       //reset Rotation of RM
 	wait(20);
 	T3 = 0;
 	double counter = 100;
@@ -589,7 +598,7 @@ int IntakeControl()
 			G::intakeprev = bB||bR1;
 
 			//INTAKE
-			if (bY==1){run(RightRoller, -80); run(LeftRoller, -80);}
+			if (bY==1||bL2==1){run(RightRoller, -80); run(LeftRoller, -80);}
 		}
 		wait(10);
 	}
@@ -610,18 +619,22 @@ int AutoStack()
   RunRamp=on;
   while(RunRamp==on){wait(20);}
   while(bLeft){wait(10);}
+  wait(300);
+  rampcontroller.suspend();
+  RampR.startRotateTo(-350, rotationUnits::deg);
+  RampL.rotateTo(-350, rotationUnits::deg);
+  ArmR.startRotateTo(30,rotationUnits::deg);
+  ArmL.startRotateTo(30,rotationUnits::deg);
+  rampcontroller.resume();
   wait(200);
-  //ArmL.setVelocity(50,vex::velocityUnits::pct);
-  //ArmR.setVelocity(50,vex::velocityUnits::pct);
-  //ArmL.startRotateTo(90,rotationUnits::deg);
-  //ArmR.startRotateTo(90,rotationUnits::deg);
   ManualSpeed=-35;
   intake=manual;
-  MoveG(40,-8,0,1000,coast,3000);
+  MoveG(40,-8,0,1000,3000);
+
   ramp=bwrd;
   RunRamp=on;
-  //MoveG(40,-7.8,1,1000,brake,3000);
-  MoveG(60,-12.8,1,1000,brake,3000);
+  MoveG(60,-12.8,1,1000,3000);
+  StopDrive(brake);
   ArmR.startRotateTo(0,rotationUnits::deg);
   ArmL.startRotateTo(0,rotationUnits::deg);
   if (AutoRunning==1){wait(1000);}
@@ -641,10 +654,7 @@ int RampWheels()
 		else if ( (CubeSense.pressing() || CubeSense2.pressing()) &&  DontLiftStack==0){run(RampWheelL,90);run(RampWheelR,90);}
 		else {BRAKE(RampWheelL,hold);BRAKE(RampWheelR,hold);}
 		wait(50);
-
 	}
-
-
 	return 0;
 }
 
@@ -654,36 +664,36 @@ int ArmControl()
 	{
     if(AutoRunning==0)
     {
-		if (bR1==1&&enc(ArmR)<490)//arm control
-		{
-			//intake=off;
-      
-			run(ArmR, 70);
-			run(ArmL,70);
-			T4=0;
-			//ArmL.resetRotation();
-		}
-		else if (bR2==1&&enc(ArmR)>0)
-		{
-      
-			run(ArmR, -70);
-			run(ArmL, -70);
-			T4=0;
-		}
-		else
-		{
+      if (bR1==1&&enc(ArmR)<490)//arm control //if pressing down and enc <490
+      {
+        //intake=off;
+        
+        run(ArmR, 70);
+        run(ArmL,70);
+        T4=0;
+        //ArmL.resetRotation();
+      }
+      else if (bR2==1&&enc(ArmR)>0) //if pressing down and enc >0
+      {
+        
+        run(ArmR, -70);
+        run(ArmL, -70);
+        T4=0;
+      }
+      else
+      {
 
-			if (T4>250&&T4<500)
-			{
-				BRAKE(ArmR, hold);
-				ArmL.rotateTo(enc(ArmR), rotationUnits::deg);
-			}
-			else
-			{
-				BRAKE(ArmR, hold);
-				BRAKE(ArmL, hold);
-			}
-    }
+        if (T4>250&&T4<500)
+        {
+          BRAKE(ArmR, hold);
+          ArmL.rotateTo(enc(ArmR), rotationUnits::deg);
+        }
+        else
+        {
+          BRAKE(ArmR, hold);
+          BRAKE(ArmL, hold);
+        }
+      }
 		}
     wait(10);
 	}
@@ -909,8 +919,8 @@ int TurnToCube()
 void ArcTurn(float degree, float radius, char FBD, char LRD) //fbd fwd bkwd  lrd left right
 {
   T3=0;
-	LM.resetRotation();
-  RM.resetRotation();
+	LM.resetRotation();       //reset Rotation of LM
+  RM.resetRotation();       //reset Rotation of RM
   double TGyro=GlobalGyro;
   TGyro=0;
 	//90 degrees
@@ -973,8 +983,8 @@ else if(abs(enc(RM))>Rarcdist){dirR*=-1.0;}
 void ArcTurnG(float degree, float radius) //FL:d,r FR:-d,r BL:-d,-r BR:d,-r
 {
   
-  	LM.resetRotation();
-  RM.resetRotation();
+  	LM.resetRotation();       //reset Rotation of LM
+  RM.resetRotation();       //reset Rotation of RM
 double slack=1.0; //Correction slack, smaller number means tighter turn tolerance
 double wb=12.0; //wheelbase width
 	double basespeed = 30.0;	//Base speed
@@ -1025,8 +1035,8 @@ StopDrive(brake);
 /*void ArcTurnG(float degree, float radius) //fbd fwd bkwd  lrd left right
 {
   T3=0;
-	LM.resetRotation();
-  RM.resetRotation();
+	LM.resetRotation();       //reset Rotation of LM
+  RM.resetRotation();       //reset Rotation of RM
   GlobalGyroT=0;
 	//90 degrees
   double BaseSpeed=15;
