@@ -8,4 +8,4 @@ vex::vision::signature SIG_5 = vex::vision::signature (5, 0, 0, 0, 0, 0, 0, 3, 0
 vex::vision::signature SIG_6 = vex::vision::signature (6, 0, 0, 0, 0, 0, 0, 3, 0);
 vex::vision::signature SIG_7 = vex::vision::signature (7, 0, 0, 0, 0, 0, 0, 3, 0);
 vex::vision Vision = vex::vision (vex::PORT1, 60, OCUBE, PCUBE, GCUBE, SIG_4, SIG_5, SIG_6, SIG_7);
-/*vex-vision-config:end*/
+/*vex-vision-config:end*/ 

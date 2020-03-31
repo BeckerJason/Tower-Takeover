@@ -34,14 +34,14 @@ void pre_auton(void) {
 //   stack.suspend();
 ramp=bwrd;                              //ramp direction starts as 'backward', the next step of enable will cause ramp to move forward
   
- RampR.resetRotation();
+  RampR.resetRotation();
   RampL.resetRotation();                  //Reset ramp rotations
   ArmL.resetRotation();
   ArmR.resetRotation();
 #include "pre_auton.h"          //include pre auto code 
 }
 /////////////////////////
-
+ 
 
 // ---- AUTO ---- //
 void auton(void) { 
@@ -83,7 +83,6 @@ int main()
 {
   //std::cout<<"help";
   //AutoRunning=1;
-
 DriveTorque(100);
 
   

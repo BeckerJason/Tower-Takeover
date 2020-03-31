@@ -67,6 +67,8 @@ else{ArcTurn(45,10,'f','l');}
 DontLiftStack=on;
 if(Color==Blue){ArcTurn(45,10,'f','l');}
 else {ArcTurn(45,10,'f','r');}
+float tempturn=Inertial.heading();
+//Turn(-tempturn,20,2000);
 Move(25,3,0,brake,6000);
 // Move(45,14,1,brake,5000);
 wait(250);
@@ -86,6 +88,8 @@ intake=manual;
 Move(25,4,1,brake,5000);
 wait(300);
 Move(60,-5.56,1,coast,6000);
+tempturn=Inertial.heading();
+//Turn(-tempturn,20,2000);
 leftDrive(-60);
 rightDrive(-60);
 ArmR.startRotateTo(0,rotationUnits::deg);
@@ -104,6 +108,8 @@ if(Color==Blue){ArcTurn(55,18,'b','r');}
 else{ArcTurn(55,18,'b','l');}
 if(Color==Blue){ArcTurn(55,18,'b','l');}
 else{ArcTurn(55,18,'b','r');}
+tempturn=Inertial.heading();
+//Turn(-tempturn,20,2000);
 Move(30,21.5,1,brake,5000);
 wait(200);
 Move(30,-3,1,brake,5000);
@@ -130,7 +136,7 @@ while(CubeSense2.pressing()&&T4<700){wait(20);}
 DontLiftStack=off;
 Move(35,12,1,brake,5000);
 wait(250);
-Turn(Color*130,30,10000);
+Turn(Color*125,30,10000);
 Move(40,50,1,coast,7000);
 leftDrive(20);
 rightDrive(20);

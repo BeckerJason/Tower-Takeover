@@ -24,7 +24,8 @@ int GyroTrack() {
 	//rampwheel.suspend();
 	//printscreen.suspend();
 	wait(3500);                             //wait (X) ms
-	Inertial.calibrate();
+	inertial::quaternion  Inertial_quaternion;
+  Inertial.calibrate();
 	wait(2000);                             //wait (X) ms
 	//arm.resume();
 	//rampcontroller.resume();
@@ -35,7 +36,8 @@ int GyroTrack() {
 	//printscreen.resume();
 #endif
 	while (1) {
-		CurrentGyro=Inertial.heading()*10;
+		Inertial_quaternion = Inertial.orientation();
+    CurrentGyro=Inertial.heading()*10;
 		//if going from 3600 to 0
 		if(GyroTCheck>2500&&GyroTCheck<=3600&& CurrentGyro<1000)
 		{GyroAdd=3600-GyroTCheck+ CurrentGyro;}
@@ -44,22 +46,23 @@ int GyroTrack() {
 		{GyroAdd=-3600-GyroTCheck+ CurrentGyro;}
 		//if going from 0 to 3600
 		else if (GyroTCheck>-1000&&GyroTCheck<1000&&CurrentGyro>2500)
-		{GyroAdd=-GyroTCheck- 3600-CurrentGyro;}
+		{GyroAdd=-GyroTCheck+ 3600-CurrentGyro;}
 		//going from 0 to -3600
 		else if (GyroTCheck<1000&&GyroTCheck>-1000&&CurrentGyro<-2500)
-		{GyroAdd=-GyroTCheck-3600-CurrentGyro;}
+		{GyroAdd=-GyroTCheck+3600-CurrentGyro;}
 
-		else {GyroAdd = GyroTCheck-CurrentGyro;}
+		else {GyroAdd = GyroTCheck-CurrentGyro;}  
 		GyroTCheck = CurrentGyro;
 		if (GyroAdd>0)
 		{GlobalGyro += GyroAdd;GlobalGyroT += GyroAdd;}
 		else{GlobalGyro+=GyroAdd;GlobalGyroT+=GyroAdd;}
 
-		/*file.open("DATA.csv",ios::out | ios::app | ios::ate );
-		file<<counter<<","<< Gyro.value(vex::rotationUnits::raw)<<","<<GlobalGyro<<endl;
+		/*file.open("DATA8.csv",ios::out | ios::app | ios::ate );
+		file<<counter<<","<< Inertial.heading()*10<<","<<GlobalGyro<<","<<GyroTCheck<<endl;
 		file.close();
-		counter++;*/
-		wait(5);
+		counter++;
+		*/
+    wait(5);
 	}
 	return 0;
 }
@@ -94,7 +97,7 @@ int PrintScreen() {
 		//Brain.Screen.printAt(340, 200, "cube %d ", CubeSense.pressing());
 		//Brain.Screen.printAt(340, 220, "cube %d ", CubeSense2.pressing());
 		wait(75);
-
+  
 	}
 	return 0;
 }
@@ -144,8 +147,9 @@ void leftDrive(int power) {
 void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 {
 	double dir=1;
-	GlobalGyro = 0;
-	wait(50);
+	//GlobalGyro = 0;
+	Inertial.resetRotation();
+  wait(50);
 	if (degrees > 0){dir=-1;}
 	else if (degrees < 0){dir=1;}
 	//float ticks = abs(degrees*7.7);
@@ -155,9 +159,9 @@ void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 	double turnspeed=speed;
 	degrees*=10;
 	double val=1;
-	while(fabs(GlobalGyro) < fabs(degrees))
+	while(fabs(Inertial.rotation()*10) < fabs(degrees))
 	{
-		val=fabs((GlobalGyro)/(degrees));
+		val=fabs((Inertial.rotation()*10)/(degrees));
 		turnspeed=speed*(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419);
 		if(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419>.8)
 		{turnspeed=speed*.8;}

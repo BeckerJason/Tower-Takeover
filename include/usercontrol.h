@@ -2,7 +2,7 @@
 using namespace G;
 using namespace std;
 using namespace vex;
-
+ 
 #ifdef DEBUG // if DEBUG is not defined earlier this section will not compile
 /*while(DEBUG){
 if (bUp == 1) { GLOBALP += .01; wait(100); }

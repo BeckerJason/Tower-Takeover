@@ -7,7 +7,7 @@ AutoRunning=1;
 RampR.startRotateTo(-180,rotationUnits::deg);
 RampL.rotateTo(-180,rotationUnits::deg);
 BRAKE(RampL,coast);
-BRAKE(RampR,coast); 
+BRAKE(RampR,coast);  
 wait(300);
 intake=on;
 Move(20,38.3,1,brake,10000); //4 cubes
