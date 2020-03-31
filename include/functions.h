@@ -144,7 +144,43 @@ void leftDrive(int power) {
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////TURN BASED ON GYRO DEGREES EXAMPLE // TurnDegree(-90, 100,1000);//THIS TURNS LEFT 90 DEGREES AT 100 POWER
+//////////////////////////////////////TURN BASED ON GYRO DEGREES EXAMPLE // TurnG(-90, 100,1000);//THIS TURNS to face -90 DEGREES AT 100 POWER
+int TurnG(double degree, double speed, int TimeOut)
+{ 
+  double slack=0.5;// degrees of slack left and right
+  double dir=1;
+  double turnspeed=speed;
+	degree*=10;
+  slack*=10;
+  double initgyro=GlobalGyro;
+  double val=1;
+  T3=0;
+  while((GlobalGyro>degree+slack||GlobalGyro<degree-slack)&&T3<TimeOut) //wihle loop written twice to correct for overshoot
+  {
+    while((GlobalGyro>degree+slack||GlobalGyro<degree-slack)&&T3<TimeOut)
+    {
+      val=fabs(initgyro-GlobalGyro)/fabs(initgyro-degree); 
+      
+      turnspeed=speed*(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419);
+      if(GlobalGyro>degree) //need to go rigt
+      {
+        leftDrive(turnspeed);
+        rightDrive(-turnspeed);//go right
+      }
+      else
+      {
+        leftDrive(-turnspeed);
+        rightDrive(turnspeed);//go left
+      }
+     wait(10); 
+    }
+    StopDrive(brake);
+    wait(150);
+  }
+  return 1;
+}
+
+//////////////////////////////////////TURN BASED ON GYRO DEGREES EXAMPLE // TurnDegree(-90, 100,1000);//THIS TURNS RIGHT 90 DEGREES AT 100 POWER
 void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 {
 	double dir=1;
@@ -581,11 +617,11 @@ int AutoStack()
   //ArmR.startRotateTo(90,rotationUnits::deg);
   ManualSpeed=-35;
   intake=manual;
-  MoveG(25,-4,1,1000,coast,3000);
+  MoveG(40,-8,0,1000,coast,3000);
   ramp=bwrd;
   RunRamp=on;
   //MoveG(40,-7.8,1,1000,brake,3000);
-  MoveG(30,-17.8,1,1000,brake,3000);
+  MoveG(60,-12.8,1,1000,brake,3000);
   ArmR.startRotateTo(0,rotationUnits::deg);
   ArmL.startRotateTo(0,rotationUnits::deg);
   if (AutoRunning==1){wait(1000);}
@@ -618,7 +654,7 @@ int ArmControl()
 	{
     if(AutoRunning==0)
     {
-		if (bR1==1&&enc(ArmR)<500)//Chain bar arm control
+		if (bR1==1&&enc(ArmR)<490)//arm control
 		{
 			//intake=off;
       

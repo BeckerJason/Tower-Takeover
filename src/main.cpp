@@ -15,7 +15,7 @@
 /*                                                                             */
 /*                                                                             */
 /*----------------------------------------------------------------------------*/
-#define SKILL
+//#define SKILL
 #ifndef DEBUG  
 //#define DEBUG
 #endif
@@ -54,9 +54,12 @@ void auton(void) {
 	// rampwheel.suspend();
   // cubeload.suspend();
 //#include "autonincludes.h"                //include auto code
-//Color=Red;
+//Color=Blue;
 //#include "RedBlue1.h"   //12 points copied from Blue5
 //#include "RedBlue2.h"   // 12 points 42 seconds working 2/23/20
+// TurnG(-90,25,5000);
+// TurnG(90,25,5000);
+// TurnG(0,25,5000);
 #include "RedBlue3.h"
 /*#ifdef SKILL
 #include "Skills.h"
