@@ -79,7 +79,10 @@ static bool preautoL;
 double ManualSpeed;   
 static double spd;
 double FSpeed=0;
-double TSpeed=0; 
+double TSpeed=0;
+float GyroAdd=0;
+float GyroTCheck=0;
+float CurrentGyro=0; 
 //float GLOBALP=1.4,GLOBALI=0.0000001,GLOBALD=8.1;
 };
 #endif
@@ -91,26 +94,28 @@ double TSpeed=0;
 vex::brain Brain;
 vex::controller   Controller = vex::controller(vex::controllerType::primary);
 vex::digital_out Piston=vex::digital_out(Brain.ThreeWirePort.A);
-vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.A);
+//vex::gyro   Gyro = vex::gyro(Brain.ThreeWirePort.A);
+vex::inertial Inertial(vex::PORT7);
 vex::limit CubeSense = vex::limit(Brain.ThreeWirePort.F);
 vex::limit CubeSense2 = vex::limit(Brain.ThreeWirePort.C);
-vex::motor RampWheelR = vex::motor(vex::PORT6,vex::gearSetting::ratio36_1,false);//right Ramp wheel motor
-vex::motor RampWheelL = vex::motor(vex::PORT17,vex::gearSetting::ratio36_1,true);//left Ramp wheel motor
-vex::motor LF = vex::motor(vex::PORT18,vex::gearSetting::ratio18_1,false);//front left drivetrain motor
+vex::motor RampWheelR = vex::motor(vex::PORT6,vex::gearSetting::ratio18_1,false);//right Ramp wheel motor 
+vex::motor RampWheelL = vex::motor(vex::PORT17,vex::gearSetting::ratio18_1,true);//left Ramp wheel motor
+vex::motor LF = vex::motor(vex::PORT16,vex::gearSetting::ratio18_1,false);//front left drivetrain motor
 vex::motor LM = vex::motor(vex::PORT19,vex::gearSetting::ratio18_1,false);//middle left drivetrain motor
 vex::motor LB = vex::motor(vex::PORT20,vex::gearSetting::ratio18_1,false);//back left drivetrain motor
 vex::motor RF = vex::motor(vex::PORT8,vex::gearSetting::ratio18_1,true);//front right drivetrain motor
 vex::motor RM = vex::motor(vex::PORT9,vex::gearSetting::ratio18_1,true);//middle right drivetrain motor
 vex::motor RB = vex::motor(vex::PORT10,vex::gearSetting::ratio18_1,true);//back right drivetrain motor
-vex::motor RightRoller = vex::motor(vex::PORT4,vex::gearSetting::ratio18_1,false);//front right intake motor
-vex::motor LeftRoller = vex::motor(vex::PORT14,vex::gearSetting::ratio18_1,true);//front left intake motor
-vex::motor ArmL = vex::motor(vex::PORT16,vex::gearSetting::ratio36_1,true);//left arm motor
-vex::motor ArmR = vex::motor(vex::PORT3,vex::gearSetting::ratio36_1,false);//right arm motor
+vex::motor RightRoller = vex::motor(vex::PORT3,vex::gearSetting::ratio18_1,false);//front right intake motor
+vex::motor LeftRoller = vex::motor(vex::PORT15,vex::gearSetting::ratio18_1,true);//front left intake motor
+vex::motor ArmL = vex::motor(vex::PORT14,vex::gearSetting::ratio36_1,true);//left arm motor
+vex::motor ArmR = vex::motor(vex::PORT5,vex::gearSetting::ratio36_1,false);//right arm motor
 vex::motor RampL = vex::motor(vex::PORT11,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
-vex::motor RampR = vex::motor(vex::PORT1,vex::gearSetting::ratio36_1,false);//right Ramp lift motor
-vex::motor RampLb = vex::motor(vex::PORT12,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
+vex::motor RampR = vex::motor(vex::PORT2,vex::gearSetting::ratio36_1,false);//right Ramp lift motor
+vex::motor RampLb = vex::motor(vex::PORT13,vex::gearSetting::ratio36_1,true);//left Ramp lift motor
 vex::motor RampRb = vex::motor(vex::PORT2,vex::gearSetting::ratio36_1,false);//right Ramp lift motor
 //Vision on port 13
+//PORTs 2 and 4 are ded
 
 #include "VisionDef.h"
 #define   bL2  Controller.ButtonL2.pressing()
@@ -156,6 +161,13 @@ vex::motor RampRb = vex::motor(vex::PORT2,vex::gearSetting::ratio36_1,false);//r
                           LF.stop(vex::brakeType::brake);\
                           LB.stop(vex::brakeType::brake);\
                           LM.stop(vex::brakeType::brake)
+#define MoveG(w,x,y,q,brake,z) moveg(w,x,y,q,z);\
+                            RF.stop(vex::brakeType::brake);\
+                          RB.stop(vex::brakeType::brake);\
+                          RM.stop(vex::brakeType::brake);\
+                          LF.stop(vex::brakeType::brake);\
+                          LB.stop(vex::brakeType::brake);\
+                          LM.stop(vex::brakeType::brake)
 #endif
 
 
@@ -168,16 +180,20 @@ int TurnToCube();               //Task to turn to Cube      *CubeTrack
 int TIMER2();                   //Task for Timer            *T3
 int ENDAUTOTIMER();             //Task for match timer      *MATCHTIMER
 int RampControl();              //Task for ramp control     *
-int PrintController();          //Task to print to controller
+//int PrintController();          //Task to print to controller
 int IntakeControl();            //Task to control intake
 void rightDrive(int);           //Right Drive
 void leftDrive(int);            //Left drive                          
 void pidTurn(float , float, float , float, int);  //Turn Function 
 int move(float, float,bool,int);       //Move(speed , distance inches, ramp to max speed, end brake type)
+int moveg(float, float,bool,double,int);       //Move(speed , distance inches, ramp to max speed, end brake type)
 void ToWall(double);                              //ToWall(speed)
 int ArmControl();
 int RampWheels();
 int CubeLoad();
+void Turn(double,double,int);
+void T(double,double,int);
+void GyroChange();
 //void SetDriveTorque(double);
 void Colors(ToggleMode,ToggleMode,ToggleMode);
 
@@ -187,15 +203,15 @@ void Colors(ToggleMode,ToggleMode,ToggleMode);
 
 #ifndef TASKS
 #define TASKS
-	vex::task printscreen (PrintScreen); 
+	vex::task gyrotrack (GyroTrack);
+  vex::task printscreen (PrintScreen); 
 	//vex::task fifth (TurnToCube); 
 	vex::task timer2 (TIMER2);
-	vex::task gyrotrack (GyroTrack);
   //task starttimer (ENDAUTOTIMER);         //start timer task
   vex::task arm (ArmControl);
   vex::task rampcontroller (RampControl);      //start ramp control task
   vex::task IntakeController (IntakeControl);
-  vex::task controllerprint (PrintController);
+  //vex::task controllerprint (PrintController);
   vex::task cubes (TurnToCube);
   vex::task rampwheel (RampWheels);
   vex::task cubeload;

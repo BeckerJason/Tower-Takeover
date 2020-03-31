@@ -17,25 +17,28 @@ int GyroTrack() {
 	float CurrentGyro=0;
 	//std::ofstream file;
 	int counter=0;
-	// arm.suspend();
-	// rampcontroller.suspend();
-	// IntakeController.suspend();
-	// timer2.suspend();
-	// rampwheel.suspend();
-	// printscreen.suspend();
+	//arm.suspend();
+	//rampcontroller.suspend();
+	//IntakeController.suspend();
+	//timer2.suspend();
+	//rampwheel.suspend();
+	//printscreen.suspend();
 	wait(3500);                             //wait (X) ms
-	Gyro.startCalibration();                //start Gyro Calibration
+	inertial::quaternion  Inertial_quaternion;
+  Inertial.calibrate();
 	wait(2000);                             //wait (X) ms
-// 	arm.resume();
-// 	rampcontroller.resume();
-// 	IntakeController.resume();
-// 	timer2.resume();
-// 	rampwheel.resume();
-// #ifdef DEBUG
-// 	printscreen.resume();
-// #endif
+  
+	//arm.resume();
+	//rampcontroller.resume();
+	//IntakeController.resume();
+	//timer2.resume();
+	//rampwheel.resume();
+#ifdef DEBUG
+	//printscreen.resume();
+#endif
 	while (1) {
-		CurrentGyro=Gyro.value(vex::rotationUnits::raw);
+		Inertial_quaternion = Inertial.orientation();
+    CurrentGyro=Inertial.heading()*10;
 		//if going from 3600 to 0
 		if(GyroTCheck>2500&&GyroTCheck<=3600&& CurrentGyro<1000)
 		{GyroAdd=3600-GyroTCheck+ CurrentGyro;}
@@ -44,22 +47,23 @@ int GyroTrack() {
 		{GyroAdd=-3600-GyroTCheck+ CurrentGyro;}
 		//if going from 0 to 3600
 		else if (GyroTCheck>-1000&&GyroTCheck<1000&&CurrentGyro>2500)
-		{GyroAdd=-GyroTCheck- 3600-CurrentGyro;}
+		{GyroAdd=-GyroTCheck+ 3600-CurrentGyro;}
 		//going from 0 to -3600
 		else if (GyroTCheck<1000&&GyroTCheck>-1000&&CurrentGyro<-2500)
-		{GyroAdd=-GyroTCheck-3600-CurrentGyro;}
+		{GyroAdd=-GyroTCheck+3600-CurrentGyro;}
 
-		else {GyroAdd = GyroTCheck-CurrentGyro;}
+		else {GyroAdd = GyroTCheck-CurrentGyro;}  
 		GyroTCheck = CurrentGyro;
 		if (GyroAdd>0)
-		{GlobalGyro += GyroAdd*0.93023;GlobalGyroT += GyroAdd*0.93023;}
-		else{GlobalGyro+=GyroAdd*0.94736;GlobalGyroT+=GyroAdd*0.94736;}
+		{GlobalGyro += GyroAdd;GlobalGyroT += GyroAdd;}
+		else{GlobalGyro+=GyroAdd;GlobalGyroT+=GyroAdd;}
 
-		/*file.open("DATA.csv",ios::out | ios::app | ios::ate );
-		file<<counter<<","<< Gyro.value(vex::rotationUnits::raw)<<","<<GlobalGyro<<endl;
+		/*file.open("DATA8.csv",ios::out | ios::app | ios::ate );
+		file<<counter<<","<< Inertial.heading()*10<<","<<GlobalGyro<<","<<GyroTCheck<<endl;
 		file.close();
-		counter++;*/
-		wait(5);
+		counter++;
+		*/
+    wait(5);
 	}
 	return 0;
 }
@@ -144,8 +148,9 @@ void leftDrive(int power) {
 void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 {
 	double dir=1;
-	GlobalGyro = 0;
-	wait(50);
+	//GlobalGyro = 0;
+	Inertial.resetRotation();
+  wait(50);
 	if (degrees > 0){dir=-1;}
 	else if (degrees < 0){dir=1;}
 	//float ticks = abs(degrees*7.7);
@@ -155,9 +160,9 @@ void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 	double turnspeed=speed;
 	degrees*=10;
 	double val=1;
-	while(fabs(GlobalGyro) < fabs(degrees))
+	while(fabs(Inertial.rotation()*10) < fabs(degrees))
 	{
-		val=fabs((GlobalGyro)/(degrees));
+		val=fabs((Inertial.rotation()*10)/(degrees));
 		turnspeed=speed*(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419);
 		if(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419>.8)
 		{turnspeed=speed*.8;}
@@ -187,7 +192,7 @@ void Turn(double degrees, double speed, int TimeOut)//, int Timeout)
 			run(RF,-dir*turnspeed);}
 		wait(10);
 	}
-	StopDrive(hold);
+	StopDrive(brake);
 }
 void T(double degrees, double speed, int TimeOut)//, int Timeout) similar to turn, suing start angle as 0 always
 {
@@ -212,8 +217,6 @@ void T(double degrees, double speed, int TimeOut)//, int Timeout) similar to tur
 		{
 			val=fabs((GlobalGyroT-degrees)/(TGyro-degrees));
 			turnspeed=speed*(7.19*pow(val,4)-14.388*pow(val,3)+5.659*pow(val,2)+1.5349*val+0.1419);
-
-
 
 			////////////////////////////////////FAILSAFE TIMEOUT
 			if(T3 > TimeOut  && TimeOut > 0){StopDrive(hold);return;}
@@ -463,11 +466,25 @@ int CubeLoad()
 	RightRoller.startRotateFor(directionType::fwd, -10, rotationUnits::deg);
 	LeftRoller.rotateFor(directionType::fwd, -10, rotationUnits::deg);
   wait(100);
-  	ArmL.setVelocity(100, velocityUnits::rpm);
-	ArmR.setVelocity(100, velocityUnits::rpm);
+  	ArmL.setVelocity(80, velocityUnits::rpm);
+	ArmR.setVelocity(80, velocityUnits::rpm);
   	T3=0;
-  ArmR.startRotateTo(575,rotationUnits::deg);
-	ArmL.rotateTo(575,rotationUnits::deg);
+  if(bL2&&bL1)
+  {
+  ArmR.startRotateTo(580,rotationUnits::deg);
+	ArmL.rotateTo(580,rotationUnits::deg);
+  }
+  else if(!bL2&&bL1)
+  {
+  ArmR.startRotateTo(430,rotationUnits::deg);
+	ArmL.rotateTo(430,rotationUnits::deg);
+  }
+  else
+  {
+    ArmR.startRotateTo(320,rotationUnits::deg);
+	  ArmL.rotateTo(320,rotationUnits::deg);
+  }
+
   StopArm(hold);
 	arm.resume();
 	IntakeController.resume();
@@ -496,9 +513,10 @@ int IntakeControl()
 			G::intakeprev = bB||bR1;
 
 			//INTAKE
-			if (bY==1){run(RightRoller, -80); run(LeftRoller, -80);}
+			if (bY==1 && abs(enc(ArmL))<50){run(RightRoller, -100); run(LeftRoller, -100);}
+      else if(bY==1){run(RightRoller, -70); run(LeftRoller, -70);}
 		}
-		wait(50);
+		wait(5);
 	}
 	return 0;
 }
@@ -516,20 +534,24 @@ int AutoStack()
   while(RunRamp==on){wait(20);}
   while(bLeft){wait(10);}
   //Move(40,-2.1,1,coast,10000);
-  StopDrive(coast);
-  ArmL.setVelocity(50,vex::velocityUnits::pct);
-  ArmR.setVelocity(50,vex::velocityUnits::pct);
-  ArmL.startRotateTo(90,rotationUnits::deg);
-  ArmR.startRotateTo(90,rotationUnits::deg);
+  //StopDrive(coast);
+  // ArmL.setVelocity(50,vex::velocityUnits::pct);
+  // ArmR.setVelocity(50,vex::velocityUnits::pct);
+  // ArmL.startRotateTo(90,rotationUnits::deg);
+  // ArmR.startRotateTo(90,rotationUnits::deg);
+  ManualSpeed=-35;
+  intake=manual;
+  MoveG(40,-4,1,1000,coast,3000);
   ramp=bwrd;
-  Move(20,-6,1,coast,3000);
+  // Move(20,-9,1,coast,3000);
   RunRamp=on;
-  Move(40,-3.5,0,brake,3000);
-  ArmR.startRotateTo(0,rotationUnits::deg);
-  ArmL.startRotateTo(0,rotationUnits::deg);
-  wait(1000);
-  arm.resume();
+  MoveG(40,-17.8,0,1000,brake,3000);
+  //ArmR.startRotateTo(0,rotationUnits::deg);
+  //ArmL.startRotateTo(0,rotationUnits::deg);
+  //if (AutoRunning==1){wait(1000);} //with current setup will always be true
   AutoRunning=0;
+  arm.resume();
+  intake=off;
   return 0;
 }
 ///////////////////////////////////////////
@@ -552,22 +574,30 @@ int RampWheels()
 
 int ArmControl()
 {
+  double Roffset=1,Loffset=1;
 	while(1)
-	{
+	{Roffset=1;
+  Loffset=1;
 		if (bR1==1&&enc(ArmR)<580)//Chain bar arm control
 		{
 			//intake=off;
-      
-			run(ArmR, 100);
-			run(ArmL,100);
+      if(abs(enc(ArmR))>abs(enc(ArmR)))
+      {Roffset=0.8;}
+      if(abs(enc(ArmR))<abs(enc(ArmR)))
+      {Loffset=0.8;}
+			run(ArmR, 100*Roffset);
+			run(ArmL,100*Loffset);
 			T4=0;
 			//ArmL.resetRotation();
 		}
 		else if (bR2==1&&enc(ArmR)>0)
 		{
-      
-			run(ArmR, -100);
-			run(ArmL, -100);
+      if(abs(enc(ArmR))<abs(enc(ArmR)))
+      {Roffset=0.8;}
+      if(abs(enc(ArmR))>abs(enc(ArmR)))
+      {Loffset=0.8;}
+			run(ArmR, -100*Roffset);
+			run(ArmL,-100*Loffset);
 			T4=0;
 		}
 		else
@@ -587,6 +617,7 @@ int ArmControl()
 	}
 	return 0;
 }
+std::ofstream file;
 int RampControl() //Function to be run as a task. this controls the ramp
 {
 	RunRamp=off;
@@ -595,39 +626,51 @@ int RampControl() //Function to be run as a task. this controls the ramp
 	RampR.setMaxTorque(100, percentUnits::pct);
 	BRAKE(RampL,coast);
 	BRAKE(RampR,coast);
-
-
+  double speedmult=0;
 
 	while(1)
-	{
-
-
+	{    
 		while(RunRamp==0){wait(50);}
 		//Ramp -1 = up
 		run(RightRoller,0);
 		run(LeftRoller,0);
 		//if (enc(RampR)>0 /*RampLimitBottom.pressing()==1*/){RampR.resetRotation();}
+    speedmult=0;
 		if (ramp==-1)//ramp up limit  //RAMP UP
 		{
 			if (DontDropStack==0)
 			{
-				RampWheelL.setVelocity(25, velocityUnits::rpm);
-				RampWheelR.setVelocity(25, velocityUnits::rpm);
+				RampWheelL.setVelocity(70, velocityUnits::rpm);
+				RampWheelR.setVelocity(70, velocityUnits::rpm);
 				RampWheelL.startRotateFor(directionType::fwd, -175, rotationUnits::deg);
 				RampWheelR.startRotateFor(directionType::fwd, -175, rotationUnits::deg);
 			}
-			double spd=0;
-			while(enc(RampR)>-315&&bLeft==0&&ramp==-1) //MOVE UP
+			double spd=0.3;
+			while(enc(RampR)>-460&&bLeft==0&&ramp==-1) //MOVE UP
 			{
-				spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+47.5;//48.5
+				//spd=5*pow(10,-10)*pow(enc(RampR),4)+3*pow(10,-7)*pow(enc(RampR),3)+0.0002*pow(enc(RampR),2)+0.1915*enc(RampR)+47.5;//48.5
+        spd = 55 - .70/(6+.3*DontLiftStack)*((enc(-1*RampR)+enc(-1*RampL))/2);//70
+        spd*=speedmult;
+        //spd = 70 - .7/4.6*enc(-1*RampR);
+        if(spd <= 20&&speedmult>=1){spd=20;}
 				if (bL2)
 				{spd=spd*0.2;}
 				run(RampR,-spd);
 				run(RampL,-spd);
         run(RampRb,-spd);
 				run(RampLb,-spd);
+        // file<<abs(enc(RampR))<<","<<spd<<","<<abs(RampR.velocity(percentUnits::pct))<<","<<abs(RampL.velocity(percentUnits::pct))<<endl;
+        // file.close();
+        spd = 70 - .70/(6+.3*DontLiftStack)*((enc(-1*RampR)+enc(-1*RampL))/2);
+        spd*=speedmult;
+        // file.open("DATA11.csv",ios::out|ios::app|ios::ate);
+        LeftRoller.setVelocity(20, velocityUnits::pct);
+				RightRoller.setVelocity(20, velocityUnits::pct);
 				wait(20);
+        if(speedmult<1){speedmult+=.0165;}//.017
 			}
+      LeftRoller.setVelocity(0, velocityUnits::pct);
+			RightRoller.setVelocity(0, velocityUnits::pct);
 			if (ramp==-1){RunRamp=off;}
 
 			BRAKE(RampR,hold);
@@ -637,12 +680,12 @@ int RampControl() //Function to be run as a task. this controls the ramp
 		}
 		else
 		{
-			while(enc(RampR)<-20&&bLeft==0&&ramp==1)
+			while(enc(RampR)<-10&&bLeft==0&&ramp==1)//-20
 			{
-				run(RampR,40);
-				run(RampL,40);
-        run(RampRb,40);
-				run(RampLb,40);
+				run(RampR,90);
+				run(RampL,90);
+        run(RampRb,90);
+				run(RampLb,90);
 				wait(20);
 			}
 			if (ramp==1){RunRamp=off;}
@@ -652,7 +695,8 @@ int RampControl() //Function to be run as a task. this controls the ramp
 			BRAKE(RampLb,coast);
 			wait(750);
 			if(abs(enc(RampR))<60)
-			{RampR.resetRotation();
+			{
+        RampR.resetRotation();
 				RampL.resetRotation();
         RampRb.resetRotation();
 				RampLb.resetRotation();
@@ -801,7 +845,58 @@ int TurnToCube()
 
 		wait(20);
 	}
+  
 	return 0;
+}
+int moveg(float speed, float dist, bool rampspeed, double gyroheading, int functiontimer)///Setting gyroheading to 10000 keeps robot in direction its facing 
+{
+	dist=dist*.95;
+	float dir;
+	if (dist < 0) {
+		dir = -1;
+		} else {
+		dir = 1;
+	}
+	float Tdir = dir;
+	LM.resetRotation();
+	RM.resetRotation();
+	wait(20);
+	T3 = 0;
+	double counter = 100;
+	if (rampspeed) {
+		counter = 30;
+	}
+
+  double TGyro=0;
+  if(gyroheading==10000){TGyro=GlobalGyro;}
+  else {TGyro=gyroheading;}
+	while (fabs(enc(LM)) < fabs((dist * 360.0 / (4.0 * 3.14159))) && T3 < functiontimer&&!bLeft&&!bDown) {
+  
+		float Roffset = 1.0;
+		if (GlobalGyro>TGyro+5) {
+			Roffset = 1-dir*0.1;
+			}
+       else if (GlobalGyro<TGyro-5) {
+			Roffset = 1+dir*0.1;
+			}
+       else {
+		}
+		if (counter < 100) {
+			dir = Tdir * counter * 0.01;
+			counter += .75;
+			} else {
+			dir = Tdir;
+		}
+		run(RM, speed * Roffset * dir);
+		run(LM, speed * dir);
+		run(RF, speed * Roffset * dir);
+		run(LF, speed * dir);
+		run(RB, speed * Roffset * dir);
+		run(LB, speed * dir);
+		wait(12);
+	}
+	return 1;
+
 }
 /*int twerk(){
  RampWheelR 
@@ -821,3 +916,51 @@ RampR
 RampLb
 RampRb
 }*/
+void ArcTurnG(float degree, float radius) //FL:d,r FR:-d,r BL:-d,-r BR:d,-r
+{  
+LM.resetRotation();
+RM.resetRotation();
+double slack=1.0; //Correction slack, smaller number means tighter turn tolerance
+double wb=11.5; //wheelbase width
+double basespeed = 30.0;	//Base speed
+double dir=1.0, adir=1.0, LS, RS;
+if (degree > 0) { adir = 1.0; }
+else { adir = -1.0; }
+if (radius > 0) { dir = 1.0; } //FORWARD
+else { dir = -1.0; }			//BACKWARD
+GlobalGyroT = 0; //******************
+double Tenc=0;
+	while (fabs(GlobalGyroT) / 10 < fabs(degree))
+	{
+		if (degree*radius > 0) {Tenc=fabs(enc(RM)); }///LEFT
+		else {Tenc=fabs(enc(LM)); }	//RIGHT
+
+		//cout <<"Angle:"<< adir * (2 * fabs(Tenc) / (fabs(radius) + (wb / 2))) << endl;
+		//cout << "Gyro:"; cin >> GlobalGyroT;
+		//GlobalGyroT *= 10;
+		RS = LS = 1;
+		if (GlobalGyroT / 10.0 < adir*(2.0 *Tenc / (fabs(radius) + (wb / 2.0)) - slack)) //if Gyro< curve angle
+		{
+			//cout << "-" << endl;
+			if (radius > 0) { LS =0.5/fabs(fabs(GlobalGyroT / 10)-fabs((2.0 *Tenc / (fabs(radius) + (wb / 2.0))))) ; }//fwd
+			else { RS=0.5/fabs(fabs(GlobalGyroT / 10)-fabs((2.0 *Tenc / (fabs(radius) + (wb / 2.0))))); } //bwd
+		}
+		else if (GlobalGyroT / 10.0 > adir*(2.0 * Tenc / (fabs(radius) + (wb / 2.0)) + slack))
+		{
+			//cout << "+" << endl;
+			if (radius > 0) { RS = 0.5/fabs(fabs(GlobalGyroT / 10)-fabs((2.0 *Tenc / (fabs(radius) + (wb / 2.0))))); }//fwd
+			else { LS =0.5/fabs(fabs(GlobalGyroT / 10)-fabs((2.0 *Tenc / (fabs(radius) + (wb / 2.0))))); } //bwd
+		}
+		//cout<<"L:"<<dir*basespeed*LS<<"     R:"<<dir*basespeed*RS<<endl;
+		/*Controller.LCD.clearScreen();
+    Controller.LCD.setCursor(1,1);
+    Controller.LCD.print("%1.2f  %1.2f",dir*basespeed*LS,dir*basespeed*RS);
+    Controller.LCD.setCursor(2,1);
+    Controller.LCD.print("%1.2f  %1.2f",GlobalGyroT/10,adir*(2.0 *Tenc / (fabs(radius) + (wb / 2.0))));*/
+    leftDrive(dir*basespeed*LS);
+		rightDrive(dir*basespeed*RS);
+    //Tenc += 50;
+    wait(20);
+	}
+StopDrive(brake);
+}

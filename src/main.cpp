@@ -58,7 +58,9 @@ void auton(void) {
 
 //#include "autonincludes.h"                //include auto code
 //Color=Red;
-#include "RedBlue1.h"
+// #include "RedBlueSkills.h"
+#include "RedBlue3.h"
+//#include "RedBlue2.h" //2 towers 7 stack
 //#include "Blue1.h"  
 //#include "Blue2.h"    
 //#include "Blue3.h"  
@@ -88,7 +90,6 @@ void usercontrol(void) {
   // cubes.suspend();
        
 //#include "usercontrol.h"
-
 #include "ArcadeControl.h"
 } 
 ////////////////////////////////////

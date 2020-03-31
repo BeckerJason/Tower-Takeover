@@ -37,39 +37,33 @@ RampL.rotateTo(-140,rotationUnits::deg);
 RampR.resetRotation();
 RampL.resetRotation();
 }*/
-intake=off;
-DontLiftStack=off;
- rampwheel.suspend();
-RampWheelL.resetRotation();
- RampWheelR.resetRotation();
-rightDrive(-10);
-leftDrive(-10);
-arm.suspend();
-     ArmL.setVelocity(100,vex::velocityUnits::pct);
-     ArmR.setVelocity(100,vex::velocityUnits::pct);
+// rightDrive(-10);
+//  leftDrive(-10);
+// arm.suspend();
+//       ArmL.setVelocity(100,vex::velocityUnits::pct);
+//       ArmR.setVelocity(100,vex::velocityUnits::pct);
      
-     ArmR.startRotateTo(300,rotationUnits::deg);
-     ArmL.rotateTo(300,rotationUnits::deg);
-     ManualSpeed=-100;
-     intake=manual;
-     ArmR.startRotateTo(600,rotationUnits::deg);
-     ArmL.rotateTo(600,rotationUnits::deg);
-     intake=on;
-     RampWheelL.setVelocity(60,vex::velocityUnits::pct);
-     RampWheelR.setVelocity(60,vex::velocityUnits::pct);
-     RampWheelR.startRotateTo(-150,rotationUnits::deg);
-     RampWheelL.startRotateTo(-150,rotationUnits::deg);
-     //ArmL.setVelocity(50,vex::velocityUnits::pct);
-     //ArmR.setVelocity(50,vex::velocityUnits::pct);
-     ArmR.startRotateTo(0,rotationUnits::deg);
-     ArmL.rotateTo(0,rotationUnits::deg);
-     arm.suspend();
-     StopArm(hold);
-     DontLiftStack=off;
-     rightDrive(0);
-leftDrive(0);
-intake=on;
+//       ArmR.startRotateTo(300,rotationUnits::deg);
+//       ArmL.rotateTo(300,rotationUnits::deg);
+//       ManualSpeed=-100;
+//       intake=manual;
+//       ArmR.startRotateTo(600,rotationUnits::deg);
+//       ArmL.rotateTo(600,rotationUnits::deg);
+//       intake=on;
+//       RampWheelL.setVelocity(60,vex::velocityUnits::pct);
+//       RampWheelR.setVelocity(60,vex::velocityUnits::pct);
+//       RampWheelR.startRotateTo(-150,rotationUnits::deg);
+//       RampWheelL.startRotateTo(-150,rotationUnits::deg);
+// //      //ArmL.setVelocity(50,vex::velocityUnits::pct);
+// //      //ArmR.setVelocity(50,vex::velocityUnits::pct);
+//       ArmR.startRotateTo(0,rotationUnits::deg);
+//       ArmL.rotateTo(0,rotationUnits::deg);
+//       wait(200);
+// intake=manual;
+// ManualSpeed=70;
+// arm.resume();
 
+//DontLiftStack=on;
 while (1) 
 {
   if (bUp==1)     
@@ -77,10 +71,17 @@ while (1)
     StopDrive(hold);        //Defend Position
   }
 
-  else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch4) > 10)) 
+  else if (AutoRunning == 0 && (abs(ch3) > 10 || abs(ch1) > 10)) 
   { 
-    FSpeed =ch3;
-    TSpeed =0.33*ch4;
+    // FSpeed =ch3;
+    // TSpeed =0.33*ch4;
+    FSpeed = ch3;
+    TSpeed = ch1*.3;
+    if (bL2)
+    {
+      FSpeed=FSpeed*0.3;
+      TSpeed=TSpeed*0.3;  
+    }
     CubeTrack=off; ToCube=off;
     run(LF, (FSpeed + TSpeed)); 
     run(LM, (FSpeed + TSpeed));
@@ -119,7 +120,7 @@ while (1)
 	if (bRight){vex::task stack (AutoStack);}
 	else if (bX){stack.stop();}
 	else{}
-	if (bR1||bR2){arm.resume();}
+	if (bR1||bR2&&!(bL1)){arm.resume();}
 	while(bDown||manualprev==true)
 	{
 		if(bDown)
@@ -177,16 +178,16 @@ while (1)
     gyrotrack.suspend();
     rampwheel.suspend();
     printscreen.suspend();
-      intake= off;
-  RunRamp=off;
-  CubeTrack =off;
-   OTrack=off;
-   PTrack=off;
-   GTrack=off;
-  ToCube=off;
-  DontLiftStack=off;
-  DontDropStack=off;
-ramp = bwrd;
+    intake= off;
+    RunRamp=off;
+    CubeTrack =off;
+    OTrack=off;
+    PTrack=off;
+    GTrack=off;
+    ToCube=off;
+    DontLiftStack=off;
+    DontDropStack=off;
+    ramp = bwrd;
     wait(500);
     arm.resume();
     rampcontroller.resume();
