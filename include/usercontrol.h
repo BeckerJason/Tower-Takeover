@@ -69,7 +69,7 @@ while (1)
 	else {DontLiftStack=off;DontDropStack=off;}
 
 	//if (bL2==1){CubeTrack=on;}
-	if (bX){task cubeload (CubeLoad);}
+	if (bX){vex::task cubeload (CubeLoad);}
 	else if (bLeft){cubeload.suspend();}
 	if (bRight){vex::task stack (AutoStack);}
 	else if (bX){stack.stop();}

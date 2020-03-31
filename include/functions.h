@@ -82,7 +82,7 @@ int PrintScreen() {
     Brain.Screen.printAt(1, 160, "RunRamp:  %1.2f", RunRamp);
     Brain.Screen.printAt(1, 180, "ramp:  %d", ramp);
     Brain.Screen.printAt(1, 200, "RampL:  %1.2f", enc(RampL));
-    //Brain.Screen.printAt(1, 220, "NULL:  %1.2f", false);
+    Brain.Screen.printAt(1, 220, "Color (R -1, B 1):  %d", Color);
     //Brain.Screen.printAt(1, 240, "NULL:  %1.2f", false);
 		//Brain.Screen.printAt(1, 90, "%f",  Gyro.value(vex::rotationUnits::raw));
 		//Brain.Screen.printAt(340, 20, "ARM: %1.1f", enc(ArmR));
@@ -441,7 +441,7 @@ wait(10);
 StopDrive(X);
 }*/
 int CubeLoad()
-{
+{ 
 	intake=off;ControlIntake=on;
 	IntakeController.suspend();
 	rampwheel.suspend();
@@ -476,7 +476,7 @@ int CubeLoad()
 	return 0;
 }
 int IntakeControl()
-{
+{ 
 	while(true)
 	{
 		if(AutoRunning)
@@ -504,6 +504,7 @@ int IntakeControl()
 }
 int AutoStack()
 {
+  // 
   
   AutoRunning=1;
   StopDrive(hold);
@@ -536,7 +537,7 @@ int AutoStack()
 ///////////////////////////////////////////
 ////////////////////////////////////////////////////
 int RampWheels()
-{
+{ 
 	while(1)
 	{
 		if(enc(RampR)<-100 /*RampLimitBottom.pressing()==0*/||RunRamp==on){}
@@ -552,9 +553,11 @@ int RampWheels()
 }
 
 int ArmControl()
-{
+{ 
 	while(1)
 	{
+    if(AutoRunning==0)
+    {
 		if (bR1==1&&enc(ArmR)<500)//Chain bar arm control
 		{
 			//intake=off;
@@ -584,12 +587,14 @@ int ArmControl()
 				BRAKE(ArmR, hold);
 				BRAKE(ArmL, hold);
 			}
+    }
 		}
+    wait(10);
 	}
 	return 0;
 }
 int RampControl() //Function to be run as a task. this controls the ramp
-{
+{ 
 	RunRamp=off;
 	int oldval=ramp;
 	RampL.setMaxTorque(100, percentUnits::pct);
@@ -651,6 +656,7 @@ int RampControl() //Function to be run as a task. this controls the ramp
 		}
 		DontDropStack=off;
 		run(RampL,0);run(RampR,0);
+    wait(10);
 	}
 	return 0;
 }

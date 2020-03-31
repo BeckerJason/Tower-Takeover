@@ -208,7 +208,7 @@ vex::task printscreen (PrintScreen);
   //task controllerprint (PrintController);
   vex::task cubes (TurnToCube);
   vex::task rampwheel (RampWheels);
-  vex::task cubeload (CubeLoad);
-  vex::task stack (AutoStack);
+  vex::task cubeload;
+  vex::task stack;
   
 #endif

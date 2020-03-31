@@ -41,7 +41,7 @@ printscreen.suspend();
   Brain.Screen.drawRectangle(20, 1, 430, 300, vex::color::black);
   selection = 1;
   int select=0;
-  while(1)
+  /*while(1)
   { 
 for(int i=1;i<=4;i++)
 { 
@@ -88,7 +88,8 @@ Brain.Screen.drawRectangle(180, 180, 120, 40, vex::color::white);
 Brain.Screen.printAt(210,210, false, "SELECT");
 if (select == 1 && Brain.Screen.pressing() == 0) { break; } //else if Touch within select box&& Selection >0 :: selection=3
 wait(75);
-  }
-wait(500);
+  }*/
 printscreen.resume();
+wait(1000);
+
 #endif

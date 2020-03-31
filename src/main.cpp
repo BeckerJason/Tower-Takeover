@@ -17,7 +17,7 @@
 /*----------------------------------------------------------------------------*/
 
 #ifndef DEBUG  
-#define DEBUG
+//#define DEBUG
 #endif
 #include "defines.h"            //variable and function initialization and definitions
 vex::competition Competition;   //tell robot to use competition file format
@@ -28,6 +28,16 @@ using namespace G;              //using global namespace
 // ---- PRE AUTO ---- ///
 void pre_auton(void) {
   preautoL=true;                //set pre auto latch
+//   arm.suspend();
+// 	rampwheel.suspend();
+// cubeload.suspend();
+//   stack.suspend();
+ramp=bwrd;                              //ramp direction starts as 'backward', the next step of enable will cause ramp to move forward
+  
+ RampR.resetRotation();
+  RampL.resetRotation();                  //Reset ramp rotations
+  ArmL.resetRotation();
+  ArmR.resetRotation();
 #include "pre_auton.h"          //include pre auto code 
 }
 /////////////////////////
@@ -35,12 +45,14 @@ void pre_auton(void) {
 
 // ---- AUTO ---- //
 void auton(void) { 
+  AutoRunning=1;
   preautoL=false;                         //reset pre auto latch
   G::MATCHTIMER=0;                        //reset Match timer
-  arm.suspend();
-	rampwheel.suspend();
+  // arm.suspend();
+	// rampwheel.suspend();
+  // cubeload.suspend();
 //#include "autonincludes.h"                //include auto code
-Color=Blue;
+//Color=Red;
 //#include "RedBlue1.h"   //12 points copied from Blue5
 //#include "RedBlue2.h"   // 12 points 42 seconds working 12/9/19
 #include "RedBlue3.h"   //
@@ -51,7 +63,8 @@ Color=Blue;
 //#include "Blue5.h" //12 points 32 seconds working 11/26
 //#include "Red1.h"
 //#include "Red2.h"
-//#include "SkillsAuto.h" 
+//#include "SkillsAuto.h"
+
 }
 
 //////////////////////
@@ -67,20 +80,17 @@ void usercontrol(void) {
 
 // ----- MAIN -----//
 int main() 
-{AutoRunning=1;
-  while( Gyro.isCalibrating() )
-    {wait(100);}
+{
+  //std::cout<<"help";
+  //AutoRunning=1;
+   while( Gyro.isCalibrating() )
+     {wait(100);}
 
-DriveTorque(100);
+  DriveTorque(100);
 
   
-  ramp=bwrd;                              //ramp direction starts as 'backward', the next step of enable will cause ramp to move forward
-  AutoRunning = 0;                        //auto latch off
-  RampR.resetRotation();
-  RampL.resetRotation();                  //Reset ramp rotations
-  ArmL.resetRotation();
-  ArmR.resetRotation();                   //Reset arm rotations
-  stack.suspend();
+  //AutoRunning = 0;                        //auto latch off
+  //stack.suspend();
 
 	pre_auton();                            //Run the pre-autonomous function. 
 	//Set up callbacks for autonomous and driver control periods.

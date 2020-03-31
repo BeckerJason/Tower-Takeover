@@ -62,9 +62,11 @@ Move(25,19.56,0,brake,6000);
 // wait(250);
 // Turn(Color*-45,25,5000);
 // wait(250);
-ArcTurn(45,10,'f','r');
+if (Color==Blue){ArcTurn(45,10,'f','r');}
+else{ArcTurn(45,10,'f','l');}
 DontLiftStack=on;
-ArcTurn(45,10,'f','l');
+if(Color==Blue){ArcTurn(45,10,'f','l');}
+else {ArcTurn(45,10,'f','r');}
 Move(25,3,0,brake,6000);
 // Move(45,14,1,brake,5000);
 wait(250);
@@ -98,8 +100,10 @@ DontLiftStack=off;
 // wait(200);
 // Turn(Color*-55,20,5000);
 // wait(200);
-ArcTurn(55,18,'b','r');
-ArcTurn(55,18,'b','l');
+if(Color==Blue){ArcTurn(55,18,'b','r');}
+else{ArcTurn(55,18,'b','l');}
+if(Color==Blue){ArcTurn(55,18,'b','l');}
+else{ArcTurn(55,18,'b','r');}
 Move(30,21.5,1,brake,5000);
 wait(200);
 Move(30,-3,1,brake,5000);
@@ -130,7 +134,10 @@ Turn(Color*130,30,10000);
 Move(40,50,1,coast,7000);
 leftDrive(20);
 rightDrive(20);
-Move(20,4,0,brake,2000);
+Move(20,4,0,coast,3000);
+leftDrive(10);
+rightDrive(10);
+Move(10,1,0,brake,2000);
 //intake=off;
 //DontLiftStack=on;
 //DontDropStack=off;
